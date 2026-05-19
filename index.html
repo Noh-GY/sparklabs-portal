@@ -682,20 +682,69 @@ const QUARTER_REGEX = /(\d{4})[년\s]*(\d)[분기]/;
 let currentCompany = '스파크랩';
 let finMode = 'monthly';
 
+/* ── UI 유틸 ── */
+function toast(msg, duration = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', duration);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function scrollBottom() {
+  const c = document.getElementById('chat');
+  c.scrollTop = c.scrollHeight;
+}
+
+function hideWelcome() {
+  const w = document.getElementById('welcome');
+  if (w) w.style.display = 'none';
+}
+
+function chip(text) {
+  if (!ensureAuth()) { toast('먼저 Google 로그인이 필요합니다.'); return; }
+  document.getElementById('user-input').value = text;
+  sendMessage();
+}
+
+function quickRequest(doc) {
+  if (!ensureAuth()) { toast('먼저 Google 로그인이 필요합니다.'); return; }
+  document.getElementById('user-input').value = currentCompany.replace('스파크랩','') + ' ' + doc;
+  sendMessage();
+}
+
+function selectCompany(el, name) {
+  document.querySelectorAll('.company-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentCompany = name;
+  document.getElementById('current-company-title').textContent = name;
+  document.getElementById('current-company-sub').textContent = name + ' · Google Drive 서류 포털';
+}
+
 // 페이지 로드 시 토큰 감지 또는 로그인 유도
-window.addEventListener('load', () => {
+document.addEventListener('DOMContentLoaded', () => {
   const hash = window.location.hash;
   if (hash) {
     const params = new URLSearchParams(hash.replace('#', ''));
     const token = params.get('access_token');
     if (token) {
       _token = token;
-      history.replaceState(null, '', location.pathname); // URL 해시 정리
+      history.replaceState(null, '', location.pathname);
       showLoginSuccess();
       return;
     }
   }
-  // 토큰 없으면 로그인 버튼 표시
   showLoginPrompt();
 });
 
@@ -752,34 +801,6 @@ function handleKey(e) {
     e.preventDefault();
     sendMessage();
   }
-}
-
-function scrollBottom() {
-  const c = document.getElementById('chat');
-  c.scrollTop = c.scrollHeight;
-}
-
-function hideWelcome() {
-  const w = document.getElementById('welcome');
-  if (w) w.style.display = 'none';
-}
-
-function chip(text) {
-  document.getElementById('user-input').value = text;
-  sendMessage();
-}
-
-function quickRequest(doc) {
-  document.getElementById('user-input').value = currentCompany.replace('스파크랩','') + ' ' + doc;
-  sendMessage();
-}
-
-function selectCompany(el, name) {
-  document.querySelectorAll('.company-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  currentCompany = name;
-  document.getElementById('current-company-title').textContent = name;
-  document.getElementById('current-company-sub').textContent = name + ' · Google Drive 서류 포털';
 }
 
 /* ── 메시지 추가 ── */
