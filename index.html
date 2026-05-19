@@ -682,7 +682,7 @@ const QUARTER_REGEX = /(\d{4})[년\s]*(\d)[분기]/;
 let currentCompany = '스파크랩';
 let finMode = 'monthly';
 
-// 페이지 로드 시 redirect 후 토큰 자동 감지
+// 페이지 로드 시 토큰 감지 또는 로그인 유도
 window.addEventListener('load', () => {
   const hash = window.location.hash;
   if (hash) {
@@ -690,17 +690,49 @@ window.addEventListener('load', () => {
     const token = params.get('access_token');
     if (token) {
       _token = token;
-      window.location.hash = '';
-      // 로그인 성공 안내
-      const chat = document.getElementById('chat');
-      const div = document.createElement('div');
-      div.className = 'msg';
-      div.innerHTML = `<div class="msg-avatar bot">AI</div><div class="msg-bubble">✅ Google 로그인 완료! 서류를 요청해 주세요.</div>`;
-      chat.appendChild(div);
-      document.getElementById('welcome').style.display = 'none';
+      history.replaceState(null, '', location.pathname); // URL 해시 정리
+      showLoginSuccess();
+      return;
     }
   }
+  // 토큰 없으면 로그인 버튼 표시
+  showLoginPrompt();
 });
+
+function showLoginPrompt() {
+  const chat = document.getElementById('chat');
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.style.display = 'none';
+  const div = document.createElement('div');
+  div.id = 'login-prompt';
+  div.className = 'msg';
+  div.innerHTML = `
+    <div class="msg-avatar bot">AI</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="msg-bubble">👋 SparkLabs 서류 포털입니다.<br>Google 계정으로 로그인하면 Drive에서 서류를 바로 찾아드립니다.</div>
+      <button class="btn btn-accent" style="width:fit-content;padding:8px 20px;font-size:13px;" onclick="doLogin()">🔐 Google 계정으로 로그인</button>
+    </div>`;
+  chat.appendChild(div);
+  // 입력창 비활성화
+  document.getElementById('user-input').disabled = true;
+  document.getElementById('user-input').placeholder = '로그인 후 서류를 요청하세요...';
+  document.getElementById('send-btn').disabled = true;
+}
+
+function showLoginSuccess() {
+  const chat = document.getElementById('chat');
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.style.display = 'flex';
+  const div = document.createElement('div');
+  div.className = 'msg';
+  div.innerHTML = `<div class="msg-avatar bot">AI</div><div class="msg-bubble">✅ Google 로그인 완료! 서류를 요청해 주세요.</div>`;
+  chat.appendChild(div);
+  // 입력창 활성화
+  const input = document.getElementById('user-input');
+  input.disabled = false;
+  input.placeholder = '예: 스파크랩 사업자등록증 / KF3 재무제표 / 디스커버리3...';
+  document.getElementById('send-btn').disabled = false;
+}
 
 /* ── UI 유틸 ── */
 function toast(msg, duration = 2500) {
@@ -944,28 +976,16 @@ let _token = null;
 
 function getToken() { return _token; }
 
-async function ensureAuth() {
-  if (_token) return true;
+function ensureAuth() {
+  return !!_token;
+}
 
-  // URL 해시에서 토큰 확인 (redirect 후 돌아왔을 때)
-  const hash = window.location.hash;
-  if (hash) {
-    const params = new URLSearchParams(hash.replace('#', ''));
-    const token = params.get('access_token');
-    if (token) {
-      _token = token;
-      window.location.hash = ''; // URL 정리
-      return true;
-    }
-  }
-
-  // 토큰 없으면 Google 로그인 페이지로 redirect
+function doLogin() {
   const CLIENT_ID = '1024985574266-k9rdcv832k4kcka6o1v3m0td9jtvs9vv.apps.googleusercontent.com';
-  const REDIRECT_URI = encodeURIComponent('https://noh-gy.github.io/sparklabs-portal/');
+  const REDIRECT_URI = encodeURIComponent(location.origin + location.pathname);
   const SCOPE = encodeURIComponent('https://www.googleapis.com/auth/drive.readonly');
   const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPE}`;
   window.location.href = url;
-  return false;
 }
 
 /* ── 재무제표 UI ── */
@@ -1190,14 +1210,19 @@ async function sendMessage() {
       return;
     }
 
-    // Drive API 시도 (토큰 없으면 데모 모드)
-    const hasAuth = await ensureAuth();
+    // Drive API — 토큰 확인
+    const hasAuth = ensureAuth();
     let result = null;
 
-    if (hasAuth && parsed.docType) {
+    if (!hasAuth) {
+      removeTyping();
+      lb.style.width = '0%';
+      addBubble('bot', '🔐 먼저 Google 로그인이 필요합니다.');
+      return;
+    }
+
+    if (parsed.docType) {
       result = await searchDriveFile(parsed.company, parsed.docType, parsed.period);
-    } else if (parsed.docType) {
-      result = { folderName: parsed.company, found: false };
     }
 
     removeTyping();
