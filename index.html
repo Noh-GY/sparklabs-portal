@@ -682,6 +682,26 @@ const QUARTER_REGEX = /(\d{4})[년\s]*(\d)[분기]/;
 let currentCompany = '스파크랩';
 let finMode = 'monthly';
 
+// 페이지 로드 시 redirect 후 토큰 자동 감지
+window.addEventListener('load', () => {
+  const hash = window.location.hash;
+  if (hash) {
+    const params = new URLSearchParams(hash.replace('#', ''));
+    const token = params.get('access_token');
+    if (token) {
+      _token = token;
+      window.location.hash = '';
+      // 로그인 성공 안내
+      const chat = document.getElementById('chat');
+      const div = document.createElement('div');
+      div.className = 'msg';
+      div.innerHTML = `<div class="msg-avatar bot">AI</div><div class="msg-bubble">✅ Google 로그인 완료! 서류를 요청해 주세요.</div>`;
+      chat.appendChild(div);
+      document.getElementById('welcome').style.display = 'none';
+    }
+  }
+});
+
 /* ── UI 유틸 ── */
 function toast(msg, duration = 2500) {
   const el = document.getElementById('toast');
@@ -908,23 +928,33 @@ async function searchDriveFile(companyFolder, docKeyword, period) {
   };
 }
 
-/* ── Google OAuth Token (GAPI 없을 때 데모 모드) ── */
+/* ── Google OAuth Token ── */
 let _token = null;
 
 function getToken() { return _token; }
 
 async function ensureAuth() {
   if (_token) return true;
-  // Google OAuth2 implicit flow
-  return new Promise((resolve) => {
-    const CLIENT_ID = '1024985574266-k9rdcv832k4kcka6o1v3m0td9jtvs9vv.apps.googleusercontent.com';
-    if (CLIENT_ID === 'YOUR_CLIENT_ID') { resolve(false); return; } // 데모 모드
-    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(location.href)}&response_type=token&scope=https://www.googleapis.com/auth/drive.readonly`;
-    const popup = window.open(url, '_blank', 'width=500,height=600');
-    window.addEventListener('message', (e) => {
-      if (e.data?.access_token) { _token = e.data.access_token; resolve(true); }
-    }, { once: true });
-  });
+
+  // URL 해시에서 토큰 확인 (redirect 후 돌아왔을 때)
+  const hash = window.location.hash;
+  if (hash) {
+    const params = new URLSearchParams(hash.replace('#', ''));
+    const token = params.get('access_token');
+    if (token) {
+      _token = token;
+      window.location.hash = ''; // URL 정리
+      return true;
+    }
+  }
+
+  // 토큰 없으면 Google 로그인 페이지로 redirect
+  const CLIENT_ID = '1024985574266-k9rdcv832k4kcka6o1v3m0td9jtvs9vv.apps.googleusercontent.com';
+  const REDIRECT_URI = encodeURIComponent('https://noh-gy.github.io/sparklabs-portal/');
+  const SCOPE = encodeURIComponent('https://www.googleapis.com/auth/drive.readonly');
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPE}`;
+  window.location.href = url;
+  return false;
 }
 
 /* ── 재무제표 UI ── */
