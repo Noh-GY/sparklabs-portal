@@ -6,789 +6,285 @@
 <title>SparkLabs 서류 포털</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --surface2: #18181f;
-    --surface3: #1f1f28;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.12);
-    --text: #f0f0f5;
-    --text2: #9090a8;
-    --text3: #5a5a70;
-    --accent: #6c63ff;
-    --accent2: #8b85ff;
-    --accent-glow: rgba(108,99,255,0.15);
-    --green: #34d399;
-    --green-bg: rgba(52,211,153,0.1);
-    --amber: #fbbf24;
-    --amber-bg: rgba(251,191,36,0.1);
-    --red: #f87171;
-    --red-bg: rgba(248,113,113,0.1);
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* ── Layout ── */
-  .layout {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    min-height: 100vh;
-  }
-
-  /* ── Sidebar ── */
-  .sidebar {
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-  }
-
-  .sidebar-logo {
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .logo-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--accent-glow);
-    border: 1px solid rgba(108,99,255,0.3);
-    border-radius: 8px;
-    padding: 6px 10px;
-    margin-bottom: 8px;
-  }
-
-  .logo-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%,100% { opacity:1; }
-    50% { opacity:0.4; }
-  }
-
-  .logo-text { font-size: 11px; font-weight: 500; color: var(--accent2); letter-spacing: .06em; text-transform: uppercase; }
-
-  .sidebar-title { font-size: 17px; font-weight: 600; color: var(--text); }
-  .sidebar-sub { font-size: 12px; color: var(--text3); margin-top: 2px; font-family: 'DM Mono', monospace; }
-
-  .sidebar-section { padding: 16px 12px 8px; }
-  .sidebar-section-label {
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--text3);
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    padding: 0 8px;
-    margin-bottom: 6px;
-  }
-
-  .company-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: var(--text2);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    width: 100%;
-    text-align: left;
-    transition: all .15s;
-  }
-
-  .company-btn:hover { background: var(--surface2); color: var(--text); }
-  .company-btn.active { background: var(--accent-glow); color: var(--accent2); border: 1px solid rgba(108,99,255,0.2); }
-
-  .company-avatar {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  .sidebar-footer {
-    margin-top: auto;
-    padding: 16px 12px;
-    border-top: 1px solid var(--border);
-  }
-
-  .notify-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    background: var(--amber-bg);
-    border: 1px solid rgba(251,191,36,0.2);
-    border-radius: var(--radius-sm);
-    font-size: 11px;
-    color: var(--amber);
-  }
-
-  /* ── Main ── */
-  .main {
-    display: flex;
-    flex-direction: column;
-    background: var(--bg);
-  }
-
-  .main-header {
-    padding: 24px 28px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .main-header h2 { font-size: 18px; font-weight: 500; }
-  .main-header p { font-size: 13px; color: var(--text3); margin-top: 2px; }
-
-  .header-actions { display: flex; gap: 8px; }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--border2);
-    background: var(--surface2);
-    color: var(--text2);
-    transition: all .15s;
-    text-decoration: none;
-  }
-
-  .btn:hover { background: var(--surface3); color: var(--text); }
-
-  .btn-accent {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-
-  .btn-accent:hover { background: var(--accent2); border-color: var(--accent2); color: #fff; }
-
-  /* ── Chat Area ── */
-  .chat-area {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  /* ── Welcome ── */
-  .welcome-card {
-    background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    padding: 24px;
-    text-align: center;
-  }
-
-  .welcome-icon {
-    width: 48px; height: 48px;
-    background: var(--accent-glow);
-    border: 1px solid rgba(108,99,255,0.3);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 16px;
-    font-size: 22px;
-  }
-
-  .welcome-card h3 { font-size: 16px; font-weight: 500; margin-bottom: 6px; }
-  .welcome-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
-
-  .quick-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: center;
-    margin-top: 16px;
-  }
-
-  .chip {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    border: 1px solid var(--border2);
-    background: var(--surface3);
-    color: var(--text2);
-    cursor: pointer;
-    transition: all .15s;
-  }
-
-  .chip:hover { border-color: var(--accent); color: var(--accent2); background: var(--accent-glow); }
-
-  /* ── Messages ── */
-  .msg {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    animation: fadeUp .2s ease;
-  }
-
-  @keyframes fadeUp {
-    from { opacity:0; transform: translateY(6px); }
-    to { opacity:1; transform: translateY(0); }
-  }
-
-  .msg.user { flex-direction: row-reverse; }
-
-  .msg-avatar {
-    width: 30px; height: 30px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  .msg-avatar.bot { background: var(--accent-glow); color: var(--accent2); border: 1px solid rgba(108,99,255,0.3); }
-  .msg-avatar.user-av { background: var(--surface3); color: var(--text2); }
-
-  .msg-bubble {
-    max-width: 70%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--text);
-  }
-
-  .msg.user .msg-bubble {
-    background: var(--accent-glow);
-    border-color: rgba(108,99,255,0.2);
-  }
-
-  /* ── Doc Result Card ── */
-  .doc-result {
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    overflow: hidden;
-    max-width: 480px;
-  }
-
-  .doc-result-header {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .doc-result-header span { font-size: 13px; font-weight: 500; }
-
-  .doc-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-weight: 500;
-    margin-left: auto;
-  }
-
-  .tag-green { background: var(--green-bg); color: var(--green); }
-  .tag-amber { background: var(--amber-bg); color: var(--amber); }
-  .tag-red { background: var(--red-bg); color: var(--red); }
-
-  .doc-result-body { padding: 14px 16px; }
-
-  .doc-meta-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-
-  .doc-meta-row .label { font-size: 11px; color: var(--text3); }
-  .doc-meta-row .value { font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; }
-
-  .doc-result-actions { display: flex; gap: 8px; }
-
-  .doc-result-actions .btn { flex: 1; justify-content: center; font-size: 12px; }
-
-  /* ── Finance Selector ── */
-  .fin-selector {
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    padding: 16px;
-    max-width: 420px;
-  }
-
-  .fin-selector h4 { font-size: 13px; font-weight: 500; margin-bottom: 12px; }
-
-  .period-toggle {
-    display: inline-flex;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-
-  .period-toggle button {
-    padding: 6px 16px;
-    font-size: 12px;
-    border: none;
-    background: transparent;
-    color: var(--text2);
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: all .12s;
-  }
-
-  .period-toggle button.active { background: var(--accent); color: #fff; }
-
-  .period-select {
-    width: 100%;
-    background: var(--surface3);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    padding: 8px 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    margin-bottom: 12px;
-    appearance: none;
-  }
-
-  .fin-actions { display: flex; gap: 8px; }
-  .fin-actions .btn { flex: 1; justify-content: center; }
-
-  /* ── Notify Card ── */
-  .notify-result {
-    background: var(--amber-bg);
-    border: 1px solid rgba(251,191,36,0.25);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    max-width: 440px;
-  }
-
-  .notify-result h4 { font-size: 13px; font-weight: 500; color: var(--amber); margin-bottom: 4px; }
-  .notify-result p { font-size: 12px; color: var(--text2); line-height: 1.6; }
-  .notify-result .btn { margin-top: 10px; background: var(--amber); border-color: var(--amber); color: #000; font-weight: 500; }
-  .notify-result .btn:hover { opacity: .9; }
-
-  /* ── Input Bar ── */
-  .input-bar {
-    padding: 16px 28px 20px;
-    border-top: 1px solid var(--border);
-    background: var(--surface);
-  }
-
-  .input-wrap {
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    padding: 10px 12px;
-    transition: border-color .15s;
-  }
-
-  .input-wrap:focus-within { border-color: rgba(108,99,255,0.5); }
-
-  .input-wrap textarea {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    resize: none;
-    line-height: 1.5;
-    min-height: 24px;
-    max-height: 120px;
-  }
-
-  .input-wrap textarea::placeholder { color: var(--text3); }
-
-  .send-btn {
-    width: 34px; height: 34px;
-    border-radius: 8px;
-    background: var(--accent);
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: background .15s;
-  }
-
-  .send-btn:hover { background: var(--accent2); }
-  .send-btn:disabled { background: var(--surface3); cursor: not-allowed; }
-
-  .send-btn svg { width: 16px; height: 16px; fill: white; }
-
-  .input-hint { font-size: 11px; color: var(--text3); margin-top: 8px; text-align: center; }
-
-  /* ── Typing indicator ── */
-  .typing { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
-  .typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: bounce .8s infinite; }
-  .typing span:nth-child(2) { animation-delay: .15s; }
-  .typing span:nth-child(3) { animation-delay: .3s; }
-  @keyframes bounce { 0%,80%,100% { transform: scale(0.7); opacity:.4; } 40% { transform: scale(1); opacity:1; } }
-
-  /* ── Toast ── */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--surface3);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    padding: 10px 16px;
-    font-size: 13px;
-    color: var(--text);
-    display: none;
-    z-index: 999;
-    animation: fadeUp .2s ease;
-  }
-
-  .loading-bar {
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 2px;
-    width: 0%;
-    transition: width .4s ease;
-    margin-bottom: 16px;
-  }
+:root {
+  --bg:#0a0a0f;--surface:#111118;--surface2:#18181f;--surface3:#1f1f28;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#f0f0f5;--text2:#9090a8;--text3:#5a5a70;
+  --accent:#6c63ff;--accent2:#8b85ff;--glow:rgba(108,99,255,0.15);
+  --green:#34d399;--green-bg:rgba(52,211,153,0.1);
+  --amber:#fbbf24;--amber-bg:rgba(251,191,36,0.1);
+  --red:#f87171;--red-bg:rgba(248,113,113,0.1);
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
+.logo-badge{display:inline-flex;align-items:center;gap:8px;background:var(--glow);border:1px solid rgba(108,99,255,0.3);border-radius:8px;padding:6px 10px;margin-bottom:8px}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.logo-text{font-size:11px;font-weight:500;color:var(--accent2);letter-spacing:.06em;text-transform:uppercase}
+.sb-title{font-size:17px;font-weight:600}
+.sb-sub{font-size:12px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace}
+.sb-section{padding:16px 12px 8px}
+.sb-label{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:0 8px;margin-bottom:6px}
+.co-btn{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--rs);cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;text-align:left;transition:all .15s}
+.co-btn:hover{background:var(--surface2);color:var(--text)}
+.co-btn.active{background:var(--glow);color:var(--accent2);border:1px solid rgba(108,99,255,0.2)}
+.co-av{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.sb-footer{margin-top:auto;padding:16px 12px;border-top:1px solid var(--border)}
+.notify-badge{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--amber-bg);border:1px solid rgba(251,191,36,0.2);border-radius:var(--rs);font-size:11px;color:var(--amber)}
+
+.main{display:flex;flex-direction:column;background:var(--bg)}
+.main-header{padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.main-header h2{font-size:18px;font-weight:500}
+.main-header p{font-size:13px;color:var(--text3);margin-top:2px}
+.header-actions{display:flex;gap:8px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);transition:all .15s;text-decoration:none}
+.btn:hover{background:var(--surface3);color:var(--text)}
+.btn-accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-accent:hover{background:var(--accent2);border-color:var(--accent2);color:#fff}
+
+.chat-area{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:16px}
+.welcome-card{background:linear-gradient(135deg,var(--surface2),var(--surface3));border:1px solid var(--border2);border-radius:var(--r);padding:24px;text-align:center}
+.welcome-icon{width:48px;height:48px;background:var(--glow);border:1px solid rgba(108,99,255,0.3);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:22px}
+.welcome-card h3{font-size:16px;font-weight:500;margin-bottom:6px}
+.welcome-card p{font-size:13px;color:var(--text2);line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:16px}
+.chip{padding:5px 12px;border-radius:20px;font-size:12px;border:1px solid var(--border2);background:var(--surface3);color:var(--text2);cursor:pointer;transition:all .15s}
+.chip:hover{border-color:var(--accent);color:var(--accent2);background:var(--glow)}
+
+.msg{display:flex;gap:10px;align-items:flex-start;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse}
+.msg-av{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.msg-av.bot{background:var(--glow);color:var(--accent2);border:1px solid rgba(108,99,255,0.3)}
+.msg-av.me{background:var(--surface3);color:var(--text2)}
+.msg-content{display:flex;flex-direction:column;gap:8px}
+.bubble{max-width:560px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:13px;line-height:1.6;color:var(--text)}
+.msg.user .bubble{background:var(--glow);border-color:rgba(108,99,255,0.2)}
+
+.doc-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;max-width:460px}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head span{font-size:13px;font-weight:500}
+.tag{display:inline-flex;align-items:center;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.tag-green{background:var(--green-bg);color:var(--green)}
+.tag-amber{background:var(--amber-bg);color:var(--amber)}
+.tag-red{background:var(--red-bg);color:var(--red)}
+.card-body{padding:14px 16px}
+.meta-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.meta-row .lbl{font-size:11px;color:var(--text3)}
+.meta-row .val{font-size:12px;color:var(--text2);font-family:'DM Mono',monospace}
+.card-actions{display:flex;gap:8px;margin-top:12px}
+.card-actions .btn{flex:1;justify-content:center;font-size:12px}
+.rule-box{background:var(--surface3);border-radius:var(--rs);padding:10px 12px;margin-top:10px}
+.rule-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.rule-val{font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;white-space:pre-line;line-height:1.7}
+.rule-hint{font-size:11px;color:var(--text3);margin-top:6px}
+
+.fin-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:16px;max-width:420px}
+.fin-card h4{font-size:13px;font-weight:500;margin-bottom:12px}
+.period-toggle{display:inline-flex;border:1px solid var(--border2);border-radius:var(--rs);overflow:hidden;margin-bottom:12px}
+.period-toggle button{padding:6px 16px;font-size:12px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .12s}
+.period-toggle button.active{background:var(--accent);color:#fff}
+.period-sel{width:100%;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;margin-bottom:12px;appearance:none}
+.fin-actions{display:flex;gap:8px}
+.fin-actions .btn{flex:1;justify-content:center}
+
+.typing{display:flex;gap:4px;align-items:center;padding:4px 0}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:bounce .8s infinite}
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:scale(.7);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+.input-bar{padding:16px 28px 20px;border-top:1px solid var(--border);background:var(--surface)}
+.lb{height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;width:0%;transition:width .4s ease;margin-bottom:16px}
+.input-wrap{display:flex;gap:10px;align-items:flex-end;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:10px 12px;transition:border-color .15s}
+.input-wrap:focus-within{border-color:rgba(108,99,255,.5)}
+.input-wrap textarea{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;line-height:1.5;min-height:24px;max-height:120px}
+.input-wrap textarea::placeholder{color:var(--text3)}
+.send-btn{width:34px;height:34px;border-radius:8px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.send-btn:hover{background:var(--accent2)}
+.send-btn:disabled{background:var(--surface3);cursor:not-allowed}
+.send-btn svg{width:16px;height:16px;fill:white}
+.input-hint{font-size:11px;color:var(--text3);margin-top:8px;text-align:center}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 16px;font-size:13px;color:var(--text);display:none;z-index:999;animation:fadeUp .2s ease}
 </style>
 </head>
 <body>
-
 <div class="layout">
 
-  <!-- ── Sidebar ── -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-badge">
-        <div class="logo-dot"></div>
-        <span class="logo-text">Drive 연동</span>
-      </div>
-      <div class="sidebar-title">SparkLabs 포털</div>
-      <div class="sidebar-sub">서류 다운로드 시스템</div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">법인 선택</div>
-      <button class="company-btn active" onclick="selectCompany(this, '스파크랩')">
-        <div class="company-avatar" style="background:rgba(248,113,113,0.15);color:#f87171;">SL</div>
-        스파크랩
-      </button>
-      <button class="company-btn" onclick="selectCompany(this, '스파크랩파트너스')">
-        <div class="company-avatar" style="background:rgba(108,99,255,0.15);color:#8b85ff;">SP</div>
-        스파크랩파트너스
-      </button>
-      <button class="company-btn" onclick="selectCompany(this, '스파크랩벤처스')">
-        <div class="company-avatar" style="background:rgba(52,211,153,0.15);color:#34d399;">SV</div>
-        스파크랩벤처스 (KF1)
-      </button>
-      <button class="company-btn" onclick="selectCompany(this, '스파크랩홀딩스')">
-        <div class="company-avatar" style="background:rgba(251,191,36,0.15);color:#fbbf24;">SH</div>
-        스파크랩홀딩스
-      </button>
-    </div>
-
-    <div class="sidebar-section" style="margin-top:8px">
-      <div class="sidebar-section-label">자주 찾는 서류</div>
-      <button class="company-btn" onclick="quickRequest('사업자등록증명')">📋 사업자등록증명</button>
-      <button class="company-btn" onclick="quickRequest('사업자등록증')">📄 사업자등록증</button>
-      <button class="company-btn" onclick="quickRequest('법인등기부등본')">🏢 법인등기부등본</button>
-      <button class="company-btn" onclick="quickRequest('재무제표')">📊 법인 재무제표</button>
-      <button class="company-btn" onclick="chip('펀드 재무제표')">🏦 펀드 재무제표</button>
-      <button class="company-btn" onclick="quickRequest('인감증명서')">🔏 인감증명서</button>
-    </div>
-
-    <div class="sidebar-footer">
-      <div class="notify-badge">
-        <span>📧</span>
-        <div>
-          <div style="font-weight:500;margin-bottom:1px">없는 서류 자동 알림</div>
-          <div style="color:rgba(251,191,36,0.7)">gy.noh@sparklabs.co.kr</div>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- ── Main ── -->
-  <main class="main">
-    <div class="main-header">
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="logo-badge"><div class="logo-dot"></div><span class="logo-text">Drive 연동</span></div>
+    <div class="sb-title">SparkLabs 포털</div>
+    <div class="sb-sub">서류 다운로드 시스템</div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">법인 선택</div>
+    <button class="co-btn active" onclick="selectCompany(this,'스파크랩')">
+      <div class="co-av" style="background:rgba(248,113,113,.15);color:#f87171">SL</div>스파크랩
+    </button>
+    <button class="co-btn" onclick="selectCompany(this,'스파크랩파트너스')">
+      <div class="co-av" style="background:rgba(108,99,255,.15);color:#8b85ff">SP</div>스파크랩파트너스
+    </button>
+    <button class="co-btn" onclick="selectCompany(this,'스파크랩벤처스')">
+      <div class="co-av" style="background:rgba(52,211,153,.15);color:#34d399">SV</div>스파크랩벤처스 (KF1)
+    </button>
+    <button class="co-btn" onclick="selectCompany(this,'스파크랩홀딩스')">
+      <div class="co-av" style="background:rgba(251,191,36,.15);color:#fbbf24">SH</div>스파크랩홀딩스
+    </button>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">자주 찾는 서류</div>
+    <button class="co-btn" onclick="quickDoc('사업자등록증명')">📋 사업자등록증명</button>
+    <button class="co-btn" onclick="quickDoc('사업자등록증')">📄 사업자등록증</button>
+    <button class="co-btn" onclick="quickDoc('법인등기부등본')">🏢 법인등기부등본</button>
+    <button class="co-btn" onclick="quickDoc('재무제표')">📊 법인 재무제표</button>
+    <button class="co-btn" onclick="submitText('펀드 재무제표')">🏦 펀드 재무제표</button>
+    <button class="co-btn" onclick="quickDoc('인감증명서')">🔏 인감증명서</button>
+  </div>
+  <div class="sb-footer">
+    <div class="notify-badge">
+      <span>📧</span>
       <div>
-        <h2 id="current-company-title">스파크랩</h2>
-        <p id="current-company-sub">Google Drive 서류 포털 · 최신본 자동 표시</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn" onclick="copyPortalLink()">🔗 링크 복사</button>
-        <button class="btn btn-accent" onclick="shareJandi()">잔디 공유 ↗</button>
+        <div style="font-weight:500;margin-bottom:1px">없는 서류 자동 알림</div>
+        <div style="color:rgba(251,191,36,.7)">gy.noh@sparklabs.co.kr</div>
       </div>
     </div>
+  </div>
+</aside>
 
-    <div class="chat-area" id="chat">
-
-      <div class="welcome-card" id="welcome">
-        <div class="welcome-icon">📂</div>
-        <h3>서류를 요청하세요</h3>
-        <p>법인명과 서류 종류를 자유롭게 입력하세요.<br>
-        "파트너스 사업자", "벤처스 등기" 처럼 줄여서 말해도 됩니다.<br>
-        Google Drive에서 최신본을 자동으로 찾아드립니다.</p>
-        <div class="quick-chips">
-          <span class="chip" onclick="chip('스파크랩 사업자등록증')">스파크랩 사업자등록증</span>
-          <span class="chip" onclick="chip('파트너스 사업자등록증명')">파트너스 사업자등록증명</span>
-          <span class="chip" onclick="chip('벤처스 법인등기부등본')">벤처스 법인등기부등본</span>
-          <span class="chip" onclick="chip('홀딩스 재무제표')">홀딩스 재무제표</span>
-          <span class="chip" onclick="chip('KF3 재무제표')">🏦 KF3 재무제표</span>
-          <span class="chip" onclick="chip('파트너스 인감증명서')">파트너스 인감증명서</span>
-        </div>
-      </div>
-
+<main class="main">
+  <div class="main-header">
+    <div>
+      <h2 id="co-title">스파크랩</h2>
+      <p id="co-sub">Google Drive 서류 포털 · 최신본 자동 표시</p>
     </div>
-
-    <div class="input-bar">
-      <div id="loading-bar" class="loading-bar"></div>
-      <div class="input-wrap">
-        <textarea
-          id="user-input"
-          placeholder="예: 파트너스 사업자등록증 / KF3 재무제표 / 디스커버리3..."
-          rows="1"
-          onkeydown="handleKey(event)"
-          oninput="autoResize(this)"
-        ></textarea>
-        <button class="send-btn" id="send-btn" onclick="sendMessage()">
-          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
-        </button>
-      </div>
-      <div class="input-hint">Google Drive · 자동 최신본 · 없으면 노가영님께 자동 알림</div>
+    <div class="header-actions">
+      <button class="btn" onclick="copyLink()">🔗 링크 복사</button>
+      <button class="btn btn-accent" onclick="shareJandi()">잔디 공유 ↗</button>
     </div>
-  </main>
+  </div>
 
+  <div class="chat-area" id="chat">
+    <div class="welcome-card" id="welcome">
+      <div class="welcome-icon">📂</div>
+      <h3>서류를 요청하세요</h3>
+      <p>법인명과 서류 종류를 자유롭게 입력하세요.<br>
+      "파트너스 사업자", "벤처스 등기" 처럼 줄여서 말해도 됩니다.</p>
+      <div class="chips">
+        <span class="chip" onclick="submitText('스파크랩 사업자등록증')">스파크랩 사업자등록증</span>
+        <span class="chip" onclick="submitText('파트너스 사업자등록증명')">파트너스 사업자등록증명</span>
+        <span class="chip" onclick="submitText('벤처스 법인등기부등본')">벤처스 법인등기부등본</span>
+        <span class="chip" onclick="submitText('홀딩스 재무제표')">홀딩스 재무제표</span>
+        <span class="chip" onclick="submitText('KF3 재무제표')">🏦 KF3 재무제표</span>
+        <span class="chip" onclick="submitText('파트너스 인감증명서')">파트너스 인감증명서</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-bar">
+    <div class="lb" id="lb"></div>
+    <div class="input-wrap">
+      <textarea id="inp" rows="1"
+        placeholder="예: 스파크랩 사업자등록증 / KF3 재무제표..."
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="send()">
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+      </button>
+    </div>
+    <div class="input-hint">Google Drive 연동 · 최신본 자동 표시 · 없으면 노가영님께 자동 알림</div>
+  </div>
+</main>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-/* ── 설정 ── */
-const ROOT_FOLDER_ID        = '14Ip83Wp4aj2EW6At_B-M2NGFdFq1BE4s'; // 법인 서류 루트
-const FUND_ROOT_FOLDER_ID   = '1UNybXPu14KD514PLFUdfLcoGVjNDMbFm'; // 펀드 재무제표 루트
-const NOTIFY_EMAIL          = 'gy.noh@sparklabs.co.kr';
-const ANTHROPIC_API         = 'https://api.anthropic.com/v1/messages';
+// ── 설정 ──────────────────────────────────────────────
+var CLIENT_ID    = '1024985574266-k9rdcv832k4kcka6o1v3m0td9jtvs9vv.apps.googleusercontent.com';
+var ROOT_ID      = '14Ip83Wp4aj2EW6At_B-M2NGFdFq1BE4s';
+var FUND_LINK    = 'https://drive.google.com/drive/folders/1UNybXPu14KD514PLFUdfLcoGVjNDMbFm';
+var NOTIFY_EMAIL = 'gy.noh@sparklabs.co.kr';
 
-/* ── 펀드 재무제표: Drive 폴더 링크 직접 제공 방식 ── */
-// 파일명 규칙: 재무제표_[펀드명]_[YYYYMM].pdf  예) 재무제표_KF3_202503.pdf
-const FUND_DRIVE_LINK = 'https://drive.google.com/drive/folders/1UNybXPu14KD514PLFUdfLcoGVjNDMbFm';
-
-// 펀드 관련 요청인지 판별 — 펀드명(KF2, KF3, 디스커버리3 등)은 워낙 다양해
-// 파싱 대신 패턴으로만 감지, 나머지는 AI가 맥락으로 처리
-function isFundRequest(text) {
-  const hasFundKeyword = /KF\d|디스커버리|펀드|fund/i.test(text);
-  const hasFinanceOnly = /재무/.test(text) && !Object.keys(COMPANY_MAP).some(k => text.includes(k));
-  return hasFundKeyword || hasFinanceOnly;
-}
-
-/* ── 법인명 매핑 ── */
-const COMPANY_MAP = {
-  '파트너스': '스파크랩파트너스',
-  'partners': '스파크랩파트너스',
-  '벤처스':   '스파크랩벤처스',
-  'ventures': '스파크랩벤처스',
-  'KF1':      '스파크랩벤처스',
-  'kf1':      '스파크랩벤처스',
-  '홀딩스':   '스파크랩홀딩스',
-  'holdings': '스파크랩홀딩스',
-  '스파크랩파트너스': '스파크랩파트너스',
-  '스파크랩벤처스':   '스파크랩벤처스',
-  '스파크랩홀딩스':   '스파크랩홀딩스',
-  '스파크랩': '스파크랩',
-  'sparklabs': '스파크랩',
+var COMPANY_MAP = {
+  '스파크랩파트너스':'스파크랩파트너스','파트너스':'스파크랩파트너스','partners':'스파크랩파트너스',
+  '스파크랩벤처스':'스파크랩벤처스','벤처스':'스파크랩벤처스','ventures':'스파크랩벤처스','KF1':'스파크랩벤처스',
+  '스파크랩홀딩스':'스파크랩홀딩스','홀딩스':'스파크랩홀딩스','holdings':'스파크랩홀딩스',
+  '스파크랩':'스파크랩','sparklabs':'스파크랩'
 };
 
-/* ── 서류명 매핑 ── */
-// Drive 파일명 규칙: [서류종류]_[법인명]_[날짜].pdf
-// 예) 사업자등록증_스파크랩_20250101.pdf / 사업자등록증명_스파크랩파트너스_20250401.pdf
-const DOC_MAP = {
-  // 사업자등록증 (원본 스캔 — 별도 파일)
-  '사업자등록증': '사업자등록증',
-  // 사업자등록증명 (국세청 발급 — 별도 파일)
-  '사업자등록증명': '사업자등록증명',
-  '사업자증명': '사업자등록증명',
-  // 두 단어 모두 포함 시 → 더 긴 키가 먼저 매칭되므로 위 순서 유지
-  '법인등기': '법인등기부등본',
-  '등기부': '법인등기부등본',
-  '등기': '법인등기부등본',
-  '법인등기부등본': '법인등기부등본',
-  '재무': '재무제표',
-  '재무제표': '재무제표',
-  '펀드재무': '펀드재무제표',
-  '펀드 재무': '펀드재무제표',
-  '펀드재무제표': '펀드재무제표',
-  '인감': '인감증명서',
-  '인감증명': '인감증명서',
-  '인감증명서': '인감증명서',
-  '정관': '정관',
-  '주주명부': '주주명부',
+var DOC_KEYS = [
+  ['사업자등록증명','사업자등록증명'],['사업자증명','사업자등록증명'],
+  ['사업자등록증','사업자등록증'],['사업자','사업자등록증'],
+  ['법인등기부등본','법인등기부등본'],['법인등기','법인등기부등본'],['등기부','법인등기부등본'],['등기','법인등기부등본'],
+  ['재무제표','재무제표'],['재무','재무제표'],
+  ['인감증명서','인감증명서'],['인감증명','인감증명서'],['인감','인감증명서'],
+  ['정관','정관'],['주주명부','주주명부']
+];
+
+var FILE_RULES = {
+  '사업자등록증':   '사업자등록증_[법인명]_YYMMDD.pdf\n예) 사업자등록증_스파크랩_250101.pdf',
+  '사업자등록증명': '사업자등록증명_[법인명]_YYMMDD.pdf\n예) 사업자등록증명_스파크랩파트너스_250401.pdf',
+  '법인등기부등본': '법인등기부등본_[법인명]_YYMMDD.pdf\n예) 법인등기부등본_스파크랩홀딩스_250402.pdf',
+  '재무제표':       '재무제표_[법인명]_YYYYMM.pdf\n예) 재무제표_스파크랩벤처스_202503.pdf'
 };
 
-/* ── 기간 관련 파싱 ── */
-const MONTH_REGEX = /(\d{4})[년\s]*(\d{1,2})월/;
-const QUARTER_REGEX = /(\d{4})[년\s]*(\d)[분기]/;
+// ── 상태 ──────────────────────────────────────────────
+var token = null;
+var currentCompany = '스파크랩';
+var finMonths = ['2025년 5월','2025년 4월','2025년 3월','2025년 2월','2025년 1월','2024년 12월','2024년 11월'];
+var finQuarters = ['2025년 1분기','2024년 4분기','2024년 3분기','2024년 2분기'];
 
-let currentCompany = '스파크랩';
-let finMode = 'monthly';
-
-/* ── UI 유틸 ── */
-function toast(msg, duration = 2500) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', duration);
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
-
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-}
-
-function scrollBottom() {
-  const c = document.getElementById('chat');
-  c.scrollTop = c.scrollHeight;
-}
-
-function hideWelcome() {
-  const w = document.getElementById('welcome');
-  if (w) w.style.display = 'none';
-}
-
-function chip(text) {
-  if (!ensureAuth()) { toast('먼저 Google 로그인이 필요합니다.'); return; }
-  document.getElementById('user-input').value = text;
-  sendMessage();
-}
-
-function quickRequest(doc) {
-  if (!ensureAuth()) { toast('먼저 Google 로그인이 필요합니다.'); return; }
-  document.getElementById('user-input').value = currentCompany.replace('스파크랩','') + ' ' + doc;
-  sendMessage();
-}
-
-function selectCompany(el, name) {
-  document.querySelectorAll('.company-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  currentCompany = name;
-  document.getElementById('current-company-title').textContent = name;
-  document.getElementById('current-company-sub').textContent = name + ' · Google Drive 서류 포털';
-}
-
-// 페이지 로드 시 토큰 감지 또는 로그인 유도
-document.addEventListener('DOMContentLoaded', () => {
-  const hash = window.location.hash;
+// ── 초기화 ────────────────────────────────────────────
+window.onload = function() {
+  var hash = location.hash;
   if (hash) {
-    const params = new URLSearchParams(hash.replace('#', ''));
-    const token = params.get('access_token');
-    if (token) {
-      _token = token;
-      history.replaceState(null, '', location.pathname);
-      showLoginSuccess();
+    var p = new URLSearchParams(hash.replace('#',''));
+    var t = p.get('access_token');
+    if (t) {
+      token = t;
+      history.replaceState(null,'',location.pathname);
+      addBotMsg('✅ Google 로그인 완료! 서류를 요청해 주세요.');
       return;
     }
   }
-  showLoginPrompt();
-});
+  // 로그인 필요
+  setInputEnabled(false);
+  addLoginPrompt();
+};
 
-function showLoginPrompt() {
-  const chat = document.getElementById('chat');
-  const welcome = document.getElementById('welcome');
-  if (welcome) welcome.style.display = 'none';
-  const div = document.createElement('div');
-  div.id = 'login-prompt';
-  div.className = 'msg';
-  div.innerHTML = `
-    <div class="msg-avatar bot">AI</div>
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <div class="msg-bubble">👋 SparkLabs 서류 포털입니다.<br>Google 계정으로 로그인하면 Drive에서 서류를 바로 찾아드립니다.</div>
-      <button class="btn btn-accent" style="width:fit-content;padding:8px 20px;font-size:13px;" onclick="doLogin()">🔐 Google 계정으로 로그인</button>
-    </div>`;
-  chat.appendChild(div);
-  // 입력창 비활성화
-  document.getElementById('user-input').disabled = true;
-  document.getElementById('user-input').placeholder = '로그인 후 서류를 요청하세요...';
-  document.getElementById('send-btn').disabled = true;
+// ── 로그인 ────────────────────────────────────────────
+function doLogin() {
+  var redirect = encodeURIComponent(location.origin + location.pathname);
+  var scope = encodeURIComponent('https://www.googleapis.com/auth/drive.readonly');
+  location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + CLIENT_ID + '&redirect_uri=' + redirect + '&response_type=token&scope=' + scope;
 }
 
-function showLoginSuccess() {
-  const chat = document.getElementById('chat');
-  const welcome = document.getElementById('welcome');
-  if (welcome) welcome.style.display = 'flex';
-  const div = document.createElement('div');
-  div.className = 'msg';
-  div.innerHTML = `<div class="msg-avatar bot">AI</div><div class="msg-bubble">✅ Google 로그인 완료! 서류를 요청해 주세요.</div>`;
-  chat.appendChild(div);
-  // 입력창 활성화
-  const input = document.getElementById('user-input');
-  input.disabled = false;
-  input.placeholder = '예: 스파크랩 사업자등록증 / KF3 재무제표 / 디스커버리3...';
-  document.getElementById('send-btn').disabled = false;
+function addLoginPrompt() {
+  var wrap = document.createElement('div');
+  wrap.className = 'msg';
+  wrap.innerHTML = '<div class="msg-av bot">AI</div><div class="msg-content"><div class="bubble">👋 SparkLabs 서류 포털입니다.<br>Google 계정으로 로그인하면 Drive에서 서류를 바로 찾아드립니다.</div><button class="btn btn-accent" style="width:fit-content" onclick="doLogin()">🔐 Google 계정으로 로그인</button></div>';
+  document.getElementById('chat').appendChild(wrap);
+  document.getElementById('welcome').style.display = 'none';
 }
 
-/* ── UI 유틸 ── */
-function toast(msg, duration = 2500) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', duration);
+// ── UI 유틸 ───────────────────────────────────────────
+function setInputEnabled(on) {
+  var inp = document.getElementById('inp');
+  var btn = document.getElementById('send-btn');
+  inp.disabled = !on;
+  btn.disabled = !on;
+  inp.placeholder = on ? '예: 스파크랩 사업자등록증 / KF3 재무제표...' : '로그인 후 서류를 요청하세요...';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 }
 
 function autoResize(el) {
@@ -796,506 +292,289 @@ function autoResize(el) {
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+function scrollBottom() {
+  var c = document.getElementById('chat');
+  c.scrollTop = c.scrollHeight;
 }
 
-/* ── 메시지 추가 ── */
-function addMsg(role, contentFn) {
-  const chat = document.getElementById('chat');
-  const wrap = document.createElement('div');
-  wrap.className = 'msg ' + (role === 'user' ? 'user' : '');
-  const av = document.createElement('div');
-  av.className = 'msg-avatar ' + (role === 'user' ? 'user-av' : 'bot');
-  av.textContent = role === 'user' ? '나' : 'AI';
-  wrap.appendChild(av);
-  const content = document.createElement('div');
-  content.style.display = 'flex';
-  content.style.flexDirection = 'column';
-  content.style.gap = '8px';
-  contentFn(content);
-  wrap.appendChild(content);
-  chat.appendChild(wrap);
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(function(){ el.style.display='none'; }, 2500);
+}
+
+function submitText(text) {
+  if (!token) { showToast('먼저 Google 로그인이 필요합니다.'); return; }
+  document.getElementById('inp').value = text;
+  send();
+}
+
+function quickDoc(doc) {
+  submitText(currentCompany + ' ' + doc);
+}
+
+function selectCompany(el, name) {
+  document.querySelectorAll('.co-btn').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  currentCompany = name;
+  document.getElementById('co-title').textContent = name;
+  document.getElementById('co-sub').textContent = name + ' · Google Drive 서류 포털';
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(location.href);
+  showToast('링크가 복사되었습니다 🔗');
+}
+
+function shareJandi() {
+  navigator.clipboard.writeText(location.href);
+  showToast('링크 복사 완료! 잔디에 붙여넣기 하세요.');
+}
+
+// ── 메시지 ────────────────────────────────────────────
+function addUserMsg(text) {
+  var wrap = document.createElement('div');
+  wrap.className = 'msg user';
+  wrap.innerHTML = '<div class="msg-av me">나</div><div class="msg-content"><div class="bubble">' + text + '</div></div>';
+  document.getElementById('chat').appendChild(wrap);
   scrollBottom();
-  return content;
 }
 
-function addBubble(role, text) {
-  let bubbleRef;
-  addMsg(role, (container) => {
-    const b = document.createElement('div');
-    b.className = 'msg-bubble';
-    b.textContent = text;
-    container.appendChild(b);
-    bubbleRef = b;
-  });
-  return bubbleRef;
+function addBotMsg(text, cardEl) {
+  var wrap = document.createElement('div');
+  wrap.className = 'msg';
+  var av = document.createElement('div');
+  av.className = 'msg-av bot';
+  av.textContent = 'AI';
+  var content = document.createElement('div');
+  content.className = 'msg-content';
+  var bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+  content.appendChild(bubble);
+  if (cardEl) content.appendChild(cardEl);
+  wrap.appendChild(av);
+  wrap.appendChild(content);
+  document.getElementById('chat').appendChild(wrap);
+  scrollBottom();
 }
 
 function addTyping() {
-  const chat = document.getElementById('chat');
-  const wrap = document.createElement('div');
+  var wrap = document.createElement('div');
   wrap.className = 'msg';
-  wrap.id = 'typing-indicator';
-  wrap.innerHTML = `
-    <div class="msg-avatar bot">AI</div>
-    <div class="msg-bubble" style="padding:10px 16px;">
-      <div class="typing"><span></span><span></span><span></span></div>
-    </div>`;
-  chat.appendChild(wrap);
+  wrap.id = 'typing';
+  wrap.innerHTML = '<div class="msg-av bot">AI</div><div class="msg-content"><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div></div>';
+  document.getElementById('chat').appendChild(wrap);
   scrollBottom();
 }
 
 function removeTyping() {
-  const t = document.getElementById('typing-indicator');
-  if (t) t.remove();
+  var el = document.getElementById('typing');
+  if (el) el.remove();
 }
 
-/* ── 파싱: 요청에서 법인 + 서류 + 기간 추출 ── */
-function parseRequest(text) {
-  let company = currentCompany;
-  let docType = null;
-  let period = null;
+function hideWelcome() {
+  var w = document.getElementById('welcome');
+  if (w) w.style.display = 'none';
+}
 
-  // 법인 탐색
-  for (const [key, val] of Object.entries(COMPANY_MAP)) {
-    if (text.includes(key)) { company = val; break; }
+// ── 파싱 ──────────────────────────────────────────────
+function parseReq(text) {
+  var company = currentCompany;
+  var docType = null;
+  var period = null;
+
+  var compKeys = Object.keys(COMPANY_MAP).sort(function(a,b){ return b.length - a.length; });
+  for (var i=0; i<compKeys.length; i++) {
+    if (text.indexOf(compKeys[i]) !== -1) { company = COMPANY_MAP[compKeys[i]]; break; }
   }
 
-  // 펀드 재무제표 우선 감지
-  if (isFundRequest(text)) {
+  if (/KF\d|디스커버리|펀드|fund/i.test(text) && /재무/.test(text)) {
     docType = '펀드재무제표';
   } else {
-    // 일반 서류 탐색 (긴 키 우선)
-    const docKeys = Object.keys(DOC_MAP).sort((a,b) => b.length - a.length);
-    for (const key of docKeys) {
-      if (text.includes(key)) { docType = DOC_MAP[key]; break; }
+    for (var j=0; j<DOC_KEYS.length; j++) {
+      if (text.indexOf(DOC_KEYS[j][0]) !== -1) { docType = DOC_KEYS[j][1]; break; }
     }
   }
 
-  // 기간 파싱
-  const qm = text.match(QUARTER_REGEX);
-  const mm = text.match(MONTH_REGEX);
-  if (qm) period = { type: 'quarter', year: qm[1], q: qm[2] };
-  else if (mm) period = { type: 'month', year: mm[1], month: mm[2] };
+  var qm = text.match(/(\d{4})[년\s]*(\d)[분기]/);
+  var mm = text.match(/(\d{4})[년\s]*(\d{1,2})월/);
+  if (qm) period = { type:'quarter', year:qm[1], q:qm[2] };
+  else if (mm) period = { type:'month', year:mm[1], month:mm[2] };
 
-  return { company, docType, period };
+  return { company:company, docType:docType, period:period };
 }
 
-/* ── 펀드 재무제표 카드 렌더 (링크 제공 + 없으면 요청) ── */
-function renderFundCard(container, userText) {
-  const card = document.createElement('div');
-  card.className = 'doc-result';
-  card.innerHTML = `
-    <div class="doc-result-header">
-      <span>🏦 펀드 재무제표</span>
-      <span class="doc-tag tag-green">Drive 연결</span>
-    </div>
-    <div class="doc-result-body">
-      <div class="doc-meta-row">
-        <span class="label">경로</span>
-        <span class="value" style="font-size:11px">펀드 재무제표 폴더</span>
-      </div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6;">
-        폴더에서 펀드명으로 정리되어 있습니다.<br>필요한 파일이 없으면 아래에서 업데이트 요청을 보내세요.
-      </div>
-      <div class="doc-result-actions">
-        <a class="btn btn-accent" href="${FUND_DRIVE_LINK}" target="_blank">📂 Drive 폴더 열기</a>
-        <button class="btn" onclick="sendFundUpdateRequest(this, '${userText.replace(/'/g,"\\'")}')">📧 업데이트 요청</button>
-      </div>
-    </div>`;
-  container.appendChild(card);
-}
+// ── Drive API ─────────────────────────────────────────
+async function driveSearch(company, docType, period) {
+  var h = { 'Authorization': 'Bearer ' + token };
 
-function sendFundUpdateRequest(btn, userText) {
-  const today = new Date().toLocaleDateString('ko-KR');
-  const subject = encodeURIComponent(`[펀드 재무제표 업데이트 요청] ${userText}`);
-  const body = encodeURIComponent(
-    `안녕하세요, 노가영님.\n\n` +
-    `펀드 재무제표 업데이트를 요청드립니다.\n\n` +
-    `• 요청 내용: ${userText}\n• 요청일: ${today}\n\n` +
-    `Drive 폴더에 업로드해 주시면 감사하겠습니다.\n` +
-    `폴더 링크: ${FUND_DRIVE_LINK}\n\n감사합니다.`
+  var fRes = await fetch(
+    'https://www.googleapis.com/drive/v3/files?q=%27' + ROOT_ID + '%27+in+parents+and+name+contains+%27' + encodeURIComponent(company) + '%27+and+mimeType%3D%27application%2Fvnd.google-apps.folder%27+and+trashed%3Dfalse&fields=files(id,name)',
+    { headers: h }
   );
-  window.open(`mailto:${NOTIFY_EMAIL}?subject=${subject}&body=${body}`);
-  btn.textContent = '✅ 요청 완료';
-  btn.disabled = true;
-  btn.style.color = 'var(--green)';
-  btn.style.borderColor = 'var(--green)';
-}
+  if (fRes.status === 401 || fRes.status === 403) return { noAccess:true };
+  var fData = await fRes.json();
+  if (fData.error) return { noAccess:true };
+  if (!fData.files || !fData.files.length) return { found:false, folderName:company };
 
-/* ── 진짜 Drive API 검색 (법인 서류) ── */
-async function searchDriveFile(companyFolder, docKeyword, period) {
-  // Step 1: 회사 폴더 찾기
-  const folderRes = await fetch(
-    `https://www.googleapis.com/drive/v3/files?q='${ROOT_FOLDER_ID}'+in+parents+and+name+contains+'${encodeURIComponent(companyFolder)}'+and+mimeType='application/vnd.google-apps.folder'+and+trashed=false&fields=files(id,name)`,
-    { headers: { 'Authorization': 'Bearer ' + getToken() } }
+  var folder = fData.files[0];
+
+  var pRes = await fetch(
+    'https://www.googleapis.com/drive/v3/files?q=%27' + folder.id + '%27+in+parents+and+name+contains+%27' + encodeURIComponent(docType) + '%27+and+trashed%3Dfalse&orderBy=modifiedTime+desc&fields=files(id,name,modifiedTime,webViewLink)',
+    { headers: h }
   );
+  if (pRes.status === 401 || pRes.status === 403) return { noAccess:true };
+  var pData = await pRes.json();
+  if (pData.error) return { noAccess:true };
 
-  // 권한 없는 경우 감지
-  if (folderRes.status === 403 || folderRes.status === 401) {
-    return { found: false, noAccess: true };
-  }
+  var files = pData.files || [];
+  if (!files.length) return { found:false, folderName:folder.name };
 
-  const folderData = await folderRes.json();
-  if (folderData.error?.code === 403) return { found: false, noAccess: true };
-  if (!folderData.files || folderData.files.length === 0) return null;
-
-  const folderId = folderData.files[0].id;
-  const folderName = folderData.files[0].name;
-
-  // Step 2: 파일 검색
-  let nameFilter = docKeyword;
-  if (period) {
-    if (period.type === 'quarter') nameFilter += `+and+name+contains+'${period.year}'`;
-    else nameFilter += `+and+name+contains+'${period.year}'`;
-  }
-
-  const fileRes = await fetch(
-    `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+name+contains+'${encodeURIComponent(docKeyword)}'+and+trashed=false&orderBy=modifiedTime+desc&fields=files(id,name,modifiedTime,mimeType,size,webViewLink,webContentLink)`,
-    { headers: { 'Authorization': 'Bearer ' + getToken() } }
-  );
-
-  if (fileRes.status === 403 || fileRes.status === 401) return { found: false, noAccess: true };
-
-  const fileData = await fileRes.json();
-  if (fileData.error?.code === 403) return { found: false, noAccess: true };
-
-  if (!fileData.files || fileData.files.length === 0) return { folderName, found: false, folderId };
-
-  // 기간 필터링
-  let files = fileData.files;
-  if (period) {
-    files = files.filter(f => {
-      if (period.type === 'quarter') return f.name.includes(period.year) && f.name.includes(period.q + '분기' || 'Q' + period.q);
-      if (period.type === 'month') return f.name.includes(period.year) && (f.name.includes(period.month + '월') || f.name.includes(String(period.month).padStart(2,'0')));
-      return true;
-    });
-    if (files.length === 0) files = fileData.files; // fallback: 기간 무시하고 최신본
-  }
-
-  const latest = files[0];
+  var f = files[0];
   return {
-    folderName,
-    found: true,
-    file: {
-      name: latest.name,
-      id: latest.id,
-      modifiedTime: latest.modifiedTime,
-      viewLink: latest.webViewLink,
-      downloadLink: `https://drive.google.com/uc?export=download&id=${latest.id}`,
-      mimeType: latest.mimeType,
-    }
+    found:true, folderName:folder.name,
+    file:{ name:f.name, modifiedTime:f.modifiedTime, viewLink:f.webViewLink, downloadLink:'https://drive.google.com/uc?export=download&id='+f.id }
   };
 }
 
-/* ── Google OAuth Token ── */
-let _token = null;
+// ── 카드 생성 ─────────────────────────────────────────
+function makeCard(result, parsed) {
+  var card = document.createElement('div');
+  card.className = 'doc-card';
 
-function getToken() { return _token; }
-
-function ensureAuth() {
-  return !!_token;
-}
-
-function doLogin() {
-  const CLIENT_ID = '1024985574266-k9rdcv832k4kcka6o1v3m0td9jtvs9vv.apps.googleusercontent.com';
-  const REDIRECT_URI = encodeURIComponent(location.origin + location.pathname);
-  const SCOPE = encodeURIComponent('https://www.googleapis.com/auth/drive.readonly');
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPE}`;
-  window.location.href = url;
-}
-
-/* ── 재무제표 UI ── */
-function renderFinanceSelector(container, company, period) {
-  const card = document.createElement('div');
-  card.className = 'fin-selector';
-  const months = ['2025년 5월','2025년 4월','2025년 3월','2025년 2월','2025년 1월','2024년 12월','2024년 11월','2024년 10월'];
-  const quarters = ['2025년 1분기','2024년 4분기','2024년 3분기','2024년 2분기','2024년 1분기'];
-
-  const defaultPeriod = period
-    ? (period.type === 'quarter' ? `${period.year}년 ${period.q}분기` : `${period.year}년 ${period.month}월`)
-    : months[0];
-
-  card.innerHTML = `
-    <h4>📊 ${company} 재무제표</h4>
-    <div class="period-toggle">
-      <button class="active" id="m-btn" onclick="switchFin('monthly', this)">월별</button>
-      <button id="q-btn" onclick="switchFin('quarterly', this)">분기별</button>
-    </div>
-    <select class="period-select" id="fin-period">
-      ${months.map(m => `<option${m===defaultPeriod?' selected':''}>${m}</option>`).join('')}
-    </select>
-    <div class="fin-actions">
-      <button class="btn" onclick="downloadFin('excel','${company}')">📥 Excel</button>
-      <button class="btn btn-accent" onclick="downloadFin('pdf','${company}')">📄 PDF 다운로드</button>
-    </div>`;
-  container.appendChild(card);
-
-  window._finMonths = months;
-  window._finQuarters = quarters;
-}
-
-function switchFin(mode, el) {
-  finMode = mode;
-  document.getElementById('m-btn').classList.toggle('active', mode==='monthly');
-  document.getElementById('q-btn').classList.toggle('active', mode==='quarterly');
-  const sel = document.getElementById('fin-period');
-  const opts = mode === 'monthly' ? window._finMonths : window._finQuarters;
-  sel.innerHTML = opts.map(o => `<option>${o}</option>`).join('');
-}
-
-function downloadFin(type, company) {
-  const period = document.getElementById('fin-period')?.value || '';
-  const url = buildDriveSearchUrl(company, '재무제표', period);
-  toast(`${company} ${period} 재무제표 ${type.toUpperCase()} 다운로드 시작...`);
-  window.open(url, '_blank');
-}
-
-function buildDriveSearchUrl(company, doc, period) {
-  return `https://drive.google.com/drive/folders/${ROOT_FOLDER_ID}`;
-}
-
-/* ── 파일명 규칙 (Drive 업로드 시 통일 기준) ── */
-const FILE_NAME_RULES = {
-  '사업자등록증':   '사업자등록증_[법인명]_[YYMMDD].pdf\n예) 사업자등록증_스파크랩_250101.pdf',
-  '사업자등록증명': '사업자등록증명_[법인명]_[YYMMDD].pdf\n예) 사업자등록증명_스파크랩파트너스_250401.pdf',
-  '법인등기부등본': '법인등기부등본_[법인명]_[YYMMDD].pdf\n예) 법인등기부등본_스파크랩홀딩스_250402.pdf',
-  '재무제표':       '재무제표_[법인명]_[YYYYMM].pdf\n예) 재무제표_스파크랩벤처스_202503.pdf',
-  '정관':           '정관_[법인명]_[YYMMDD].pdf',
-  '주주명부':       '주주명부_[법인명]_[YYMMDD].pdf',
-};
-
-/* ── 서류 카드 렌더 ── */
-function renderDocCard(container, result, parsed) {
-  const card = document.createElement('div');
-  card.className = 'doc-result';
-
-  // 접근 권한 없음
-  if (result?.noAccess) {
-    card.innerHTML = `
-      <div class="doc-result-header">
-        <span>📄 ${parsed.docType || '서류'}</span>
-        <span class="doc-tag tag-amber">접근 권한 없음</span>
-      </div>
-      <div class="doc-result-body">
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0 14px;">
-          <span style="font-size:22px;line-height:1">🔒</span>
-          <div>
-            <div style="font-size:13px;font-weight:500;margin-bottom:4px;">이 서류에 대한 접근 권한이 없습니다</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.6;">관리자에게 Drive 폴더 접근 권한을 요청하세요.</div>
-          </div>
-        </div>
-        <button class="btn" onclick="requestAccess('${parsed.company}', '${parsed.docType}')">📧 권한 요청 이메일</button>
-      </div>`;
-    container.appendChild(card);
-    return;
+  if (result && result.noAccess) {
+    card.innerHTML = '<div class="card-head"><span>📄 ' + parsed.docType + '</span><span class="tag tag-amber">접근 권한 없음</span></div><div class="card-body"><div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px"><span style="font-size:20px">🔒</span><div><div style="font-size:13px;font-weight:500;margin-bottom:4px">이 서류에 대한 접근 권한이 없습니다</div><div style="font-size:12px;color:var(--text2)">관리자에게 Drive 폴더 접근 권한을 요청하세요.</div></div></div><button class="btn" onclick="emailAccess(\'' + parsed.company + '\',\'' + parsed.docType + '\')">📧 권한 요청 이메일</button></div>';
+    return card;
   }
-    card.innerHTML = `
-      <div class="doc-result-header">
-        <span>🔏 인감증명서</span>
-        <span class="doc-tag tag-amber">직접 수령</span>
-      </div>
-      <div class="doc-result-body">
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0 14px;">
-          <span style="font-size:22px;line-height:1">🏢</span>
-          <div>
-            <div style="font-size:13px;font-weight:500;margin-bottom:4px;">3층에서 직접 수령해 주세요</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.6;">인감증명서는 보안상 디지털 배포가 어렵습니다.<br>필요 시 3층 담당자에게 직접 요청하세요.</div>
-          </div>
-        </div>
-      </div>`;
-    container.appendChild(card);
-    return;
+
+  if (parsed.docType === '인감증명서') {
+    card.innerHTML = '<div class="card-head"><span>🔏 인감증명서</span><span class="tag tag-amber">직접 수령</span></div><div class="card-body"><div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px">🏢</span><div><div style="font-size:13px;font-weight:500;margin-bottom:4px">3층에서 직접 수령해 주세요</div><div style="font-size:12px;color:var(--text2);line-height:1.6">인감증명서는 보안상 디지털 배포가 어렵습니다.<br>필요 시 3층 담당자에게 직접 요청하세요.</div></div></div></div>';
+    return card;
   }
 
   if (result && result.found) {
-    const f = result.file;
-    const date = new Date(f.modifiedTime).toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric'});
-    card.innerHTML = `
-      <div class="doc-result-header">
-        <span>📄 ${parsed.docType}</span>
-        <span class="doc-tag tag-green">✓ 최신본</span>
-      </div>
-      <div class="doc-result-body">
-        <div class="doc-meta-row"><span class="label">법인</span><span class="value">${result.folderName}</span></div>
-        <div class="doc-meta-row"><span class="label">파일명</span><span class="value" style="font-size:11px">${f.name}</span></div>
-        <div class="doc-meta-row"><span class="label">갱신일</span><span class="value">${date}</span></div>
-        <div class="doc-result-actions">
-          <a class="btn" href="${f.viewLink}" target="_blank">🔍 미리보기</a>
-          <a class="btn btn-accent" href="${f.downloadLink}" target="_blank">⬇ 다운로드</a>
-        </div>
-      </div>`;
-  } else if (result && !result.found) {
-    const rule = FILE_NAME_RULES[parsed.docType] || '';
-    const ruleHtml = rule
-      ? `<div style="margin:10px 0 0;background:var(--surface3);border-radius:var(--border-radius-sm);padding:10px 12px;">
-           <div style="font-size:10px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em">📌 Drive 파일명 규칙</div>
-           <div style="font-size:11px;color:var(--text2);font-family:var(--font-mono);white-space:pre-line;line-height:1.7">${rule}</div>
-           <div style="font-size:11px;color:var(--text3);margin-top:6px;">이 규칙대로 파일명을 맞춰 업로드하면 자동으로 인식됩니다.</div>
-         </div>`
-      : '';
-    card.innerHTML = `
-      <div class="doc-result-header">
-        <span>📄 ${parsed.docType || '서류'}</span>
-        <span class="doc-tag tag-red">미발견</span>
-      </div>
-      <div class="doc-result-body">
-        <div class="notify-result" style="margin:0;padding:12px">
-          <h4>📭 Drive에서 파일을 찾지 못했습니다</h4>
-          <p>파일이 있다면 파일명이 규칙과 다를 수 있습니다.<br>없다면 노가영님께 요청하세요.</p>
-          ${ruleHtml}
-          <button class="btn" style="margin-top:10px" onclick="sendNotifyEmail('${parsed.company}', '${parsed.docType}')">📧 업로드 요청 이메일</button>
-        </div>
-      </div>`;
+    var date = new Date(result.file.modifiedTime).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+    card.innerHTML = '<div class="card-head"><span>📄 ' + parsed.docType + '</span><span class="tag tag-green">✓ 최신본</span></div><div class="card-body"><div class="meta-row"><span class="lbl">법인</span><span class="val">' + result.folderName + '</span></div><div class="meta-row"><span class="lbl">파일명</span><span class="val" style="font-size:11px">' + result.file.name + '</span></div><div class="meta-row"><span class="lbl">갱신일</span><span class="val">' + date + '</span></div><div class="card-actions"><a class="btn" href="' + result.file.viewLink + '" target="_blank">🔍 미리보기</a><a class="btn btn-accent" href="' + result.file.downloadLink + '" target="_blank">⬇ 다운로드</a></div></div>';
+    return card;
   }
-  container.appendChild(card);
+
+  var rule = FILE_RULES[parsed.docType] || '';
+  var ruleHtml = rule ? '<div class="rule-box"><div class="rule-lbl">📌 Drive 파일명 규칙</div><div class="rule-val">' + rule + '</div><div class="rule-hint">이 규칙대로 파일명을 맞춰 업로드하면 자동으로 인식됩니다.</div></div>' : '';
+  card.innerHTML = '<div class="card-head"><span>📄 ' + (parsed.docType||'서류') + '</span><span class="tag tag-red">미발견</span></div><div class="card-body"><div style="font-size:13px;margin-bottom:4px">Drive에서 파일을 찾지 못했습니다.</div><div style="font-size:12px;color:var(--text2);margin-bottom:8px">파일명이 규칙과 다르거나 아직 업로드되지 않았을 수 있습니다.</div>' + ruleHtml + '<button class="btn" style="margin-top:12px" onclick="emailRequest(\'' + parsed.company + '\',\'' + (parsed.docType||'') + '\')">📧 업로드 요청 이메일</button></div>';
+  return card;
 }
 
-/* ── 권한 요청 이메일 ── */
-function requestAccess(company, doc) {
-  const today = new Date().toLocaleDateString('ko-KR');
-  const subject = encodeURIComponent(`[Drive 접근 권한 요청] ${company} ${doc}`);
-  const body = encodeURIComponent(
-    `안녕하세요, 노가영님.\n\n` +
-    `아래 서류에 대한 Drive 접근 권한을 요청드립니다.\n\n` +
-    `• 법인: ${company}\n• 서류: ${doc}\n• 요청일: ${today}\n\n감사합니다.`
-  );
-  window.open(`mailto:${NOTIFY_EMAIL}?subject=${subject}&body=${body}`);
+function makeFundCard(userText) {
+  var card = document.createElement('div');
+  card.className = 'doc-card';
+  card.innerHTML = '<div class="card-head"><span>🏦 펀드 재무제표</span><span class="tag tag-green">Drive 연결</span></div><div class="card-body"><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px">펀드별 폴더로 정리되어 있습니다.<br>없는 파일은 아래 버튼으로 업데이트 요청하세요.</div><div style="display:flex;gap:8px"><a class="btn btn-accent" href="' + FUND_LINK + '" target="_blank">📂 Drive 폴더 열기</a><button class="btn" id="fund-req-btn" onclick="emailFundUpdate(this,\'' + userText.replace(/'/g,"\\'") + '\')">📧 업데이트 요청</button></div></div>';
+  return card;
 }
 
-/* ── 요청 이메일 발송 ── */
-function sendNotifyEmail(company, doc) {
-  const today = new Date().toLocaleDateString('ko-KR');
-  const subject = encodeURIComponent(`[서류 요청] ${company} ${doc}`);
-  const body = encodeURIComponent(
-    `안녕하세요, 노가영님.\n\n` +
-    `다음 서류가 Drive에 등록되어 있지 않아 요청드립니다.\n\n` +
-    `• 법인: ${company}\n• 서류: ${doc}\n• 요청일: ${today}\n\n` +
-    `Drive에 업로드해 주시면 자동으로 포털에 반영됩니다.\n감사합니다.`
-  );
-  window.open(`mailto:${NOTIFY_EMAIL}?subject=${subject}&body=${body}`);
-  toast('노가영님께 요청 이메일 창을 열었습니다 ✉️');
+function makeFinCard(company) {
+  var card = document.createElement('div');
+  card.className = 'fin-card';
+  var monthOpts = finMonths.map(function(m){ return '<option>'+m+'</option>'; }).join('');
+  card.innerHTML = '<h4>📊 ' + company + ' 재무제표</h4><div class="period-toggle"><button class="active" id="fm-btn" onclick="switchFin(\'monthly\',this)">월별</button><button id="fq-btn" onclick="switchFin(\'quarterly\',this)">분기별</button></div><select class="period-sel" id="fin-period">' + monthOpts + '</select><div class="fin-actions"><button class="btn" onclick="dlFin(\'excel\',\'' + company + '\')">📥 Excel</button><button class="btn btn-accent" onclick="dlFin(\'pdf\',\'' + company + '\')">📄 PDF 다운로드</button></div>';
+  return card;
 }
 
-/* ── 메인 전송 ── */
-async function sendMessage() {
-  const input = document.getElementById('user-input');
-  const text = input.value.trim();
+function switchFin(mode, el) {
+  document.getElementById('fm-btn').classList.toggle('active', mode==='monthly');
+  document.getElementById('fq-btn').classList.toggle('active', mode==='quarterly');
+  var opts = (mode==='monthly' ? finMonths : finQuarters).map(function(o){ return '<option>'+o+'</option>'; }).join('');
+  document.getElementById('fin-period').innerHTML = opts;
+}
+
+function dlFin(type, company) {
+  var period = document.getElementById('fin-period') ? document.getElementById('fin-period').value : '';
+  showToast(company + ' ' + period + ' 재무제표 ' + type.toUpperCase() + ' 다운로드...');
+}
+
+// ── 이메일 ────────────────────────────────────────────
+function emailRequest(company, doc) {
+  var today = new Date().toLocaleDateString('ko-KR');
+  var sub = encodeURIComponent('[서류 요청] ' + company + ' ' + doc);
+  var body = encodeURIComponent('안녕하세요, 노가영님.\n\n다음 서류가 Drive에 없어 요청드립니다.\n\n• 법인: ' + company + '\n• 서류: ' + doc + '\n• 요청일: ' + today + '\n\nDrive에 업로드해 주시면 감사합니다.');
+  window.open('mailto:' + NOTIFY_EMAIL + '?subject=' + sub + '&body=' + body);
+}
+
+function emailAccess(company, doc) {
+  var today = new Date().toLocaleDateString('ko-KR');
+  var sub = encodeURIComponent('[Drive 접근 권한 요청] ' + company + ' ' + doc);
+  var body = encodeURIComponent('안녕하세요, 노가영님.\n\n아래 서류에 대한 Drive 접근 권한을 요청드립니다.\n\n• 법인: ' + company + '\n• 서류: ' + doc + '\n• 요청일: ' + today + '\n\n감사합니다.');
+  window.open('mailto:' + NOTIFY_EMAIL + '?subject=' + sub + '&body=' + body);
+}
+
+function emailFundUpdate(btn, userText) {
+  var today = new Date().toLocaleDateString('ko-KR');
+  var sub = encodeURIComponent('[펀드 재무제표 업데이트 요청] ' + userText);
+  var body = encodeURIComponent('안녕하세요, 노가영님.\n\n펀드 재무제표 업데이트를 요청드립니다.\n\n• 요청 내용: ' + userText + '\n• 요청일: ' + today + '\n• 폴더: ' + FUND_LINK + '\n\n감사합니다.');
+  window.open('mailto:' + NOTIFY_EMAIL + '?subject=' + sub + '&body=' + body);
+  btn.textContent = '✅ 요청 완료';
+  btn.disabled = true;
+}
+
+// ── 전송 ──────────────────────────────────────────────
+async function send() {
+  if (!token) { showToast('먼저 Google 로그인이 필요합니다.'); return; }
+  var inp = document.getElementById('inp');
+  var text = inp.value.trim();
   if (!text) return;
 
   hideWelcome();
-  input.value = '';
-  input.style.height = 'auto';
+  inp.value = '';
+  inp.style.height = 'auto';
+  addUserMsg(text);
 
-  addBubble('user', text);
-
-  const parsed = parseRequest(text);
+  var parsed = parseReq(text);
   addTyping();
-
-  const lb = document.getElementById('loading-bar');
+  var lb = document.getElementById('lb');
   lb.style.width = '40%';
 
   try {
-    // 펀드 재무제표 → Drive 링크 바로 제공
     if (parsed.docType === '펀드재무제표') {
-      removeTyping();
-      lb.style.width = '100%';
-      setTimeout(() => lb.style.width = '0%', 600);
-      addMsg('bot', (container) => {
-        const b = document.createElement('div');
-        b.className = 'msg-bubble';
-        b.textContent = '🏦 펀드 재무제표 폴더 링크입니다. 없는 파일은 업데이트 요청 버튼으로 알려주세요.';
-        container.appendChild(b);
-        renderFundCard(container, text);
-      });
+      removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
+      addBotMsg('🏦 펀드 재무제표 폴더입니다. 없는 파일은 업데이트 요청 버튼을 눌러주세요.', makeFundCard(text));
       return;
     }
 
-    // 법인 재무제표 기간 선택 UI
     if (parsed.docType === '재무제표') {
-      const aiText = `📊 ${parsed.company} 재무제표를 요청하셨습니다. 아래에서 기간을 선택해 다운로드하세요.`;
-      removeTyping();
-      lb.style.width = '100%';
-      setTimeout(() => lb.style.width = '0%', 600);
-      addMsg('bot', (container) => {
-        const b = document.createElement('div');
-        b.className = 'msg-bubble';
-        b.textContent = aiText;
-        container.appendChild(b);
-        renderFinanceSelector(container, parsed.company, parsed.period);
-      });
+      removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
+      addBotMsg('📊 ' + parsed.company + ' 재무제표입니다. 기간을 선택해 다운로드하세요.', makeFinCard(parsed.company));
       return;
     }
 
-    // Drive API — 토큰 확인
-    const hasAuth = ensureAuth();
-    let result = null;
-
-    if (!hasAuth) {
-      removeTyping();
-      lb.style.width = '0%';
-      addBubble('bot', '🔐 먼저 Google 로그인이 필요합니다.');
-      return;
-    }
-
-    if (parsed.docType) {
-      result = await searchDriveFile(parsed.company, parsed.docType, parsed.period);
-    }
-
-    removeTyping();
-    lb.style.width = '100%';
-    setTimeout(() => lb.style.width = '0%', 600);
-
-    // 서류 종류 불명확
     if (!parsed.docType) {
-      addBubble('bot', '어떤 서류가 필요하신가요? (사업자등록증 / 사업자등록증명 / 법인등기부등본 / 재무제표 / 펀드 재무제표 / 인감증명서)');
+      removeTyping(); lb.style.width='0%';
+      addBotMsg('어떤 서류가 필요하신가요? (사업자등록증 / 사업자등록증명 / 법인등기부등본 / 재무제표 / 펀드 재무제표 / 인감증명서)');
       return;
     }
 
-    // 인감증명서는 renderDocCard 내에서 3층 안내로 처리
     if (parsed.docType === '인감증명서') {
-      addMsg('bot', (container) => {
-        renderDocCard(container, result, parsed);
-      });
+      removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
+      addBotMsg('🔏 인감증명서는 3층에서 직접 수령하세요.', makeCard(null, parsed));
       return;
     }
 
-    // Drive 결과에 따라 메시지 결정
-    const bubbleText = result?.noAccess
-      ? `🔒 이 서류에 대한 접근 권한이 없습니다. 관리자에게 권한을 요청하세요.`
-      : result?.found
-        ? `✅ ${result.folderName} ${parsed.docType} 최신본을 찾았습니다.`
-        : `⚠️ Drive에서 파일을 찾지 못했습니다. 파일명 규칙을 확인하거나 노가영님께 요청하세요.`;
+    var result = await driveSearch(parsed.company, parsed.docType, parsed.period);
+    removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
 
-    addMsg('bot', (container) => {
-      const b = document.createElement('div');
-      b.className = 'msg-bubble';
-      b.textContent = bubbleText;
-      container.appendChild(b);
-      if (result) renderDocCard(container, result, parsed);
-    });
+    var msg = result.noAccess
+      ? '🔒 이 서류에 대한 접근 권한이 없습니다. 관리자에게 권한을 요청하세요.'
+      : result.found
+        ? '✅ ' + result.folderName + ' ' + parsed.docType + ' 최신본을 찾았습니다.'
+        : '⚠️ Drive에서 파일을 찾지 못했습니다. 파일명 규칙을 확인하거나 노가영님께 요청하세요.';
 
-  } catch (err) {
-    removeTyping();
-    lb.style.width = '0%';
-    addBubble('bot', '⚠️ 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    addBotMsg(msg, makeCard(result, parsed));
+
+  } catch(e) {
+    removeTyping(); lb.style.width='0%';
+    addBotMsg('⚠️ 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
   }
 }
-
-/* ── 링크 공유 ── */
-function copyPortalLink() {
-  navigator.clipboard.writeText(location.href).then(() => toast('포털 링크가 복사되었습니다 🔗'));
-}
-
-function shareJandi() {
-  toast('잔디 공유 링크: ' + location.href + ' (복사 후 채널에 붙여넣기)');
-  navigator.clipboard.writeText(location.href);
-}
 </script>
-
 </body>
 </html>
