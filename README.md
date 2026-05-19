@@ -1,1 +1,1 @@
-# sparklabs-partal
+# sparklabs-portal
