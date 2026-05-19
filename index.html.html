@@ -917,7 +917,7 @@ async function ensureAuth() {
   if (_token) return true;
   // Google OAuth2 implicit flow
   return new Promise((resolve) => {
-    const CLIENT_ID = 'YOUR_CLIENT_ID'; // 실제 배포 시 교체
+    const CLIENT_ID = '1024985574266-k9rdcv832k4kcka6o1v3m0td9jtvs9vv.apps.googleusercontent.com';
     if (CLIENT_ID === 'YOUR_CLIENT_ID') { resolve(false); return; } // 데모 모드
     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(location.href)}&response_type=token&scope=https://www.googleapis.com/auth/drive.readonly`;
     const popup = window.open(url, '_blank', 'width=500,height=600');
