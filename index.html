@@ -410,26 +410,40 @@ function parseReq(text) {
 async function driveSearch(company, docType, period) {
   var h = { 'Authorization': 'Bearer ' + token };
 
-  var fRes = await fetch(
-    'https://www.googleapis.com/drive/v3/files?q=%27' + ROOT_ID + '%27+in+parents+and+name+contains+%27' + encodeURIComponent(company) + '%27+and+mimeType%3D%27application%2Fvnd.google-apps.folder%27+and+trashed%3Dfalse&fields=files(id,name)',
-    { headers: h }
-  );
+  // 법인 폴더 탐색
+  var folderQuery = "'" + ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
+  var folderUrl = 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(folderQuery) + '&fields=files(id,name)';
+  console.log('[Drive] 폴더 검색 URL:', folderUrl);
+
+  var fRes = await fetch(folderUrl, { headers: h });
   if (fRes.status === 401 || fRes.status === 403) return { noAccess:true };
   var fData = await fRes.json();
+  console.log('[Drive] 폴더 목록:', fData);
   if (fData.error) return { noAccess:true };
   if (!fData.files || !fData.files.length) return { found:false, folderName:company };
 
-  var folder = fData.files[0];
+  // 법인명으로 폴더 필터 (API 쿼리 대신 클라이언트에서 필터)
+  var matched = fData.files.filter(function(f){ return f.name.indexOf(company) !== -1; });
+  console.log('[Drive] 법인명 매칭 폴더:', matched);
+  if (!matched.length) return { found:false, folderName:company };
+  var folder = matched[0];
 
-  var pRes = await fetch(
-    'https://www.googleapis.com/drive/v3/files?q=%27' + folder.id + '%27+in+parents+and+name+contains+%27' + encodeURIComponent(docType) + '%27+and+trashed%3Dfalse&orderBy=modifiedTime+desc&fields=files(id,name,modifiedTime,webViewLink)',
-    { headers: h }
-  );
+  // 파일 탐색
+  var fileQuery = "'" + folder.id + "' in parents and trashed=false";
+  var fileUrl = 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(fileQuery) + '&orderBy=modifiedTime+desc&fields=files(id,name,modifiedTime,webViewLink)&pageSize=50';
+  console.log('[Drive] 파일 검색 URL:', fileUrl);
+
+  var pRes = await fetch(fileUrl, { headers: h });
   if (pRes.status === 401 || pRes.status === 403) return { noAccess:true };
   var pData = await pRes.json();
+  console.log('[Drive] 파일 목록:', pData);
   if (pData.error) return { noAccess:true };
 
-  var files = pData.files || [];
+  var files = (pData.files || []).filter(function(f){
+    return f.name.indexOf(docType) !== -1;
+  });
+  console.log('[Drive] 서류명 필터 결과 (' + docType + '):', files);
+
   if (!files.length) return { found:false, folderName:folder.name };
 
   var f = files[0];
