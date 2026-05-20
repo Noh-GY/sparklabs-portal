@@ -410,43 +410,64 @@ function parseReq(text) {
 async function driveSearch(company, docType, period) {
   var h = { 'Authorization': 'Bearer ' + token };
 
-  // 법인 폴더 탐색
-  var folderQuery = "'" + ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
-  var folderUrl = 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(folderQuery) + '&fields=files(id,name)';
-  console.log('[Drive] 폴더 검색 URL:', folderUrl);
+  // Step 1: 루트 하위 폴더 목록
+  var q1 = "'" + ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
+  var r1 = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q1) + '&fields=files(id,name)&pageSize=50', { headers: h });
+  if (r1.status === 401 || r1.status === 403) return { noAccess:true };
+  var d1 = await r1.json();
+  console.log('[Drive] 루트 하위 폴더:', d1.files && d1.files.map(function(f){ return f.name; }));
+  if (d1.error) return { noAccess:true };
+  if (!d1.files || !d1.files.length) return { found:false, folderName:company };
 
-  var fRes = await fetch(folderUrl, { headers: h });
-  if (fRes.status === 401 || fRes.status === 403) return { noAccess:true };
-  var fData = await fRes.json();
-  console.log('[Drive] 폴더 목록:', fData);
-  if (fData.error) return { noAccess:true };
-  if (!fData.files || !fData.files.length) return { found:false, folderName:company };
+  // Step 2: 법인명 매칭 (exact → contains → 역방향)
+  var folders = d1.files;
+  var folder = folders.find(function(f){ return f.name === company; })
+            || folders.find(function(f){ return f.name.indexOf(company) !== -1; })
+            || folders.find(function(f){ return company.indexOf(f.name) !== -1; });
+  console.log('[Drive] 매칭 폴더:', folder ? folder.name : '없음');
+  if (!folder) return { found:false, folderName:company };
 
-  // 법인명으로 폴더 필터 (API 쿼리 대신 클라이언트에서 필터)
-  var matched = fData.files.filter(function(f){ return f.name.indexOf(company) !== -1; });
-  console.log('[Drive] 법인명 매칭 폴더:', matched);
-  if (!matched.length) return { found:false, folderName:company };
-  var folder = matched[0];
+  // Step 3: 법인폴더 직속 파일 + 서브폴더 모두 조회
+  var q2 = "'" + folder.id + "' in parents and trashed=false";
+  var r2 = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q2) + '&fields=files(id,name,modifiedTime,mimeType,webViewLink)&pageSize=100', { headers: h });
+  if (r2.status === 401 || r2.status === 403) return { noAccess:true };
+  var d2 = await r2.json();
+  if (d2.error) return { noAccess:true };
 
-  // 파일 탐색
-  var fileQuery = "'" + folder.id + "' in parents and trashed=false";
-  var fileUrl = 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(fileQuery) + '&orderBy=modifiedTime+desc&fields=files(id,name,modifiedTime,webViewLink)&pageSize=50';
-  console.log('[Drive] 파일 검색 URL:', fileUrl);
+  var items = d2.files || [];
+  var allFiles = items.filter(function(f){ return f.mimeType !== 'application/vnd.google-apps.folder'; });
+  var subFolders = items.filter(function(f){ return f.mimeType === 'application/vnd.google-apps.folder'; });
+  console.log('[Drive] 직속 파일:', allFiles.map(function(f){ return f.name; }));
+  console.log('[Drive] 서브폴더:', subFolders.map(function(f){ return f.name; }));
 
-  var pRes = await fetch(fileUrl, { headers: h });
-  if (pRes.status === 401 || pRes.status === 403) return { noAccess:true };
-  var pData = await pRes.json();
-  console.log('[Drive] 파일 목록:', pData);
-  if (pData.error) return { noAccess:true };
+  // Step 4: 서브폴더 안 파일도 조회 (재무제표 폴더 등)
+  for (var i = 0; i < subFolders.length; i++) {
+    var q3 = "'" + subFolders[i].id + "' in parents and trashed=false";
+    var r3 = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q3) + '&fields=files(id,name,modifiedTime,mimeType,webViewLink)&pageSize=100', { headers: h });
+    if (r3.status === 401 || r3.status === 403) continue;
+    var d3 = await r3.json();
+    if (d3.files) {
+      var subFiles = d3.files.filter(function(f){ return f.mimeType !== 'application/vnd.google-apps.folder'; });
+      console.log('[Drive] 서브폴더(' + subFolders[i].name + ') 파일:', subFiles.map(function(f){ return f.name; }));
+      allFiles = allFiles.concat(subFiles);
+    }
+  }
 
-  var files = (pData.files || []).filter(function(f){
-    return f.name.indexOf(docType) !== -1;
+  // Step 5: 서류명 필터 (사업자등록증 검색 시 사업자등록증명 제외 등 정확히 처리)
+  var matched = allFiles.filter(function(f) {
+    var name = f.name;
+    if (docType === '사업자등록증') {
+      // '사업자등록증명'은 제외, '사업자등록증'만
+      return name.indexOf('사업자등록증') !== -1 && name.indexOf('사업자등록증명') === -1;
+    }
+    return name.indexOf(docType) !== -1;
   });
-  console.log('[Drive] 서류명 필터 결과 (' + docType + '):', files);
+  console.log('[Drive] 최종 매칭 파일 (' + docType + '):', matched.map(function(f){ return f.name; }));
+  if (!matched.length) return { found:false, folderName:folder.name };
 
-  if (!files.length) return { found:false, folderName:folder.name };
-
-  var f = files[0];
+  // 최신순 정렬
+  matched.sort(function(a,b){ return new Date(b.modifiedTime) - new Date(a.modifiedTime); });
+  var f = matched[0];
   return {
     found:true, folderName:folder.name,
     file:{ name:f.name, modifiedTime:f.modifiedTime, viewLink:f.webViewLink, downloadLink:'https://drive.google.com/uc?export=download&id='+f.id }
