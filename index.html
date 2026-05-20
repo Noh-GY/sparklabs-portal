@@ -144,7 +144,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <button class="co-btn" onclick="quickDoc('사업자등록증명')">📋 사업자등록증명</button>
     <button class="co-btn" onclick="quickDoc('사업자등록증')">📄 사업자등록증</button>
     <button class="co-btn" onclick="quickDoc('법인등기부등본')">🏢 법인등기부등본</button>
-    <button class="co-btn" onclick="quickDoc('재무제표')">📊 법인 재무제표</button>
+    <button class="co-btn" onclick="quickDoc('재무제표')">📊 재무제표</button>
     <button class="co-btn" onclick="submitText('펀드 재무제표')">🏦 펀드 재무제표</button>
     <button class="co-btn" onclick="quickDoc('인감증명서')">🔏 인감증명서</button>
   </div>
@@ -519,24 +519,46 @@ function makeFundCard(userText) {
   return card;
 }
 
-function makeFinCard(company) {
+// ── 법인 재무제표 폴더 탐색 ──────────────────────────
+async function findFinFolder(company) {
+  var h = { 'Authorization': 'Bearer ' + token };
+
+  // 법인 폴더 찾기
+  var q1 = "'" + ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
+  var r1 = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q1) + '&fields=files(id,name)&pageSize=50', { headers: h });
+  if (r1.status === 401 || r1.status === 403) return { noAccess:true };
+  var d1 = await r1.json();
+  if (d1.error) return { noAccess:true };
+
+  var folders = d1.files || [];
+  var companyFolder = folders.find(function(f){ return f.name === company; })
+                  || folders.find(function(f){ return f.name.indexOf(company) !== -1; })
+                  || folders.find(function(f){ return company.indexOf(f.name) !== -1; });
+  if (!companyFolder) return { found:false };
+
+  // 법인폴더 안에서 재무제표 서브폴더 찾기
+  var q2 = "'" + companyFolder.id + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
+  var r2 = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q2) + '&fields=files(id,name)&pageSize=50', { headers: h });
+  if (r2.status === 401 || r2.status === 403) return { noAccess:true };
+  var d2 = await r2.json();
+  if (d2.error) return { noAccess:true };
+
+  var subFolders = d2.files || [];
+  var finFolder = subFolders.find(function(f){ return f.name.indexOf('재무') !== -1; });
+  if (!finFolder) return { found:false };
+
+  return {
+    found: true,
+    folderLink: 'https://drive.google.com/drive/folders/' + finFolder.id
+  };
+}
+
+// ── 폴더 링크 카드 ────────────────────────────────────
+function makeFolderCard(company, folderLink) {
   var card = document.createElement('div');
-  card.className = 'fin-card';
-  var monthOpts = finMonths.map(function(m){ return '<option>'+m+'</option>'; }).join('');
-  card.innerHTML = '<h4>📊 ' + company + ' 재무제표</h4><div class="period-toggle"><button class="active" id="fm-btn" onclick="switchFin(\'monthly\',this)">월별</button><button id="fq-btn" onclick="switchFin(\'quarterly\',this)">분기별</button></div><select class="period-sel" id="fin-period">' + monthOpts + '</select><div class="fin-actions"><button class="btn" onclick="dlFin(\'excel\',\'' + company + '\')">📥 Excel</button><button class="btn btn-accent" onclick="dlFin(\'pdf\',\'' + company + '\')">📄 PDF 다운로드</button></div>';
+  card.className = 'doc-card';
+  card.innerHTML = '<div class="card-head"><span>📊 ' + company + ' 재무제표</span><span class="tag tag-green">Drive 연결</span></div><div class="card-body"><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px">폴더에서 원하는 기간의 파일을 직접 선택해 다운로드하세요.</div><a class="btn btn-accent" href="' + folderLink + '" target="_blank">📂 재무제표 폴더 열기</a></div>';
   return card;
-}
-
-function switchFin(mode, el) {
-  document.getElementById('fm-btn').classList.toggle('active', mode==='monthly');
-  document.getElementById('fq-btn').classList.toggle('active', mode==='quarterly');
-  var opts = (mode==='monthly' ? finMonths : finQuarters).map(function(o){ return '<option>'+o+'</option>'; }).join('');
-  document.getElementById('fin-period').innerHTML = opts;
-}
-
-function dlFin(type, company) {
-  var period = document.getElementById('fin-period') ? document.getElementById('fin-period').value : '';
-  showToast(company + ' ' + period + ' 재무제표 ' + type.toUpperCase() + ' 다운로드...');
 }
 
 // ── 이메일 ────────────────────────────────────────────
@@ -588,8 +610,16 @@ async function send() {
     }
 
     if (parsed.docType === '재무제표') {
+      // 법인폴더 안의 재무제표 서브폴더를 찾아서 링크 안내
+      var finResult = await findFinFolder(parsed.company);
       removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
-      addBotMsg('📊 ' + parsed.company + ' 재무제표입니다. 기간을 선택해 다운로드하세요.', makeFinCard(parsed.company));
+      if (finResult.noAccess) {
+        addBotMsg('🔒 접근 권한이 없습니다. 관리자에게 권한을 요청하세요.', makeCard({noAccess:true}, parsed));
+      } else if (finResult.found) {
+        addBotMsg('📊 ' + parsed.company + ' 재무제표 폴더입니다. 폴더에서 원하는 기간 파일을 다운로드하세요.', makeFolderCard(parsed.company, finResult.folderLink));
+      } else {
+        addBotMsg('⚠️ ' + parsed.company + ' 재무제표 폴더를 찾지 못했습니다. 노가영님께 요청하세요.', makeCard({found:false, folderName:parsed.company}, parsed));
+      }
       return;
     }
 
