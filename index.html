@@ -472,9 +472,16 @@ async function driveSearch(company, docType, period) {
   // 최신순 정렬
   matched.sort(function(a,b){ return new Date(b.modifiedTime) - new Date(a.modifiedTime); });
   var f = matched[0];
+  // 다운로드: export=download 방식 대신 webViewLink에서 ID 추출해 직접 다운로드
+  var fileId = f.id;
   return {
     found:true, folderName:folder.name,
-    file:{ name:f.name, modifiedTime:f.modifiedTime, viewLink:f.webViewLink, downloadLink:'https://drive.google.com/uc?export=download&id='+f.id }
+    file:{
+      name:f.name,
+      modifiedTime:f.modifiedTime,
+      viewLink:f.webViewLink,
+      downloadLink:'https://drive.google.com/file/d/' + fileId + '/view?usp=sharing'
+    }
   };
 }
 
@@ -495,7 +502,7 @@ function makeCard(result, parsed) {
 
   if (result && result.found) {
     var date = new Date(result.file.modifiedTime).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
-    card.innerHTML = '<div class="card-head"><span>📄 ' + parsed.docType + '</span><span class="tag tag-green">✓ 최신본</span></div><div class="card-body"><div class="meta-row"><span class="lbl">법인</span><span class="val">' + result.folderName + '</span></div><div class="meta-row"><span class="lbl">파일명</span><span class="val" style="font-size:11px">' + result.file.name + '</span></div><div class="meta-row"><span class="lbl">갱신일</span><span class="val">' + date + '</span></div><div class="card-actions"><a class="btn" href="' + result.file.viewLink + '" target="_blank">🔍 미리보기</a><a class="btn btn-accent" href="' + result.file.downloadLink + '" target="_blank">⬇ 다운로드</a></div></div>';
+    card.innerHTML = '<div class="card-head"><span>📄 ' + parsed.docType + '</span><span class="tag tag-green">✓ 최신본</span></div><div class="card-body"><div class="meta-row"><span class="lbl">법인</span><span class="val">' + result.folderName + '</span></div><div class="meta-row"><span class="lbl">파일명</span><span class="val" style="font-size:11px">' + result.file.name + '</span></div><div class="meta-row"><span class="lbl">갱신일</span><span class="val">' + date + '</span></div><div class="card-actions"><a class="btn" href="' + result.file.viewLink + '" target="_blank">🔍 미리보기</a><a class="btn btn-accent" href="' + result.file.downloadLink + '" target="_blank">⬇ Drive에서 열기</a></div></div>';
     return card;
   }
 
