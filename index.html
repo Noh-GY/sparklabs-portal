@@ -437,8 +437,10 @@ async function driveSearch(company, docType, period) {
   var items = d2.files || [];
   var allFiles = items.filter(function(f){ return f.mimeType !== 'application/vnd.google-apps.folder'; });
   var subFolders = items.filter(function(f){ return f.mimeType === 'application/vnd.google-apps.folder'; });
-  console.log('[Drive] 직속 파일:', allFiles.map(function(f){ return f.name; }));
-  console.log('[Drive] 서브폴더:', subFolders.map(function(f){ return f.name; }));
+
+  // 디버그: 찾은 파일 목록을 채팅창에 표시
+  var debugMsg = '📋 [' + folder.name + '] 폴더에서 찾은 파일:\n' + (allFiles.length ? allFiles.map(function(f){ return '• ' + f.name; }).join('\n') : '(파일 없음)');
+  addBotMsg(debugMsg);
 
   // Step 4: 서브폴더 안 파일도 조회 (재무제표 폴더 등)
   for (var i = 0; i < subFolders.length; i++) {
@@ -453,12 +455,14 @@ async function driveSearch(company, docType, period) {
     }
   }
 
-  // Step 5: 서류명 필터 (사업자등록증 검색 시 사업자등록증명 제외 등 정확히 처리)
+  // Step 5: 서류명 필터 - 파일명 어느 위치에 있어도 매칭
+  // 지원 패턴: 서류명_법인명_날짜.pdf / 법인명_서류명_날짜.pdf
   var matched = allFiles.filter(function(f) {
     var name = f.name;
     if (docType === '사업자등록증') {
-      // '사업자등록증명'은 제외, '사업자등록증'만
-      return name.indexOf('사업자등록증') !== -1 && name.indexOf('사업자등록증명') === -1;
+      // '사업자등록증명'은 제외, '사업자등록증'/'사업자동록증'(오타) 모두 포함
+      return (name.indexOf('사업자등록증') !== -1 || name.indexOf('사업자동록증') !== -1)
+          && name.indexOf('사업자등록증명') === -1;
     }
     return name.indexOf(docType) !== -1;
   });
