@@ -135,6 +135,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <button class="co-btn" onclick="selectCompany(this,'스파크랩벤처스')">
       <div class="co-av" style="background:rgba(52,211,153,.15);color:#34d399">SV</div>스파크랩벤처스 (KF1)
     </button>
+    <button class="co-btn" onclick="selectCompany(this,'KF3')">
+      <div class="co-av" style="background:rgba(99,179,237,.15);color:#63b3ed">K3</div>KF3
+    </button>
     <button class="co-btn" onclick="selectCompany(this,'스파크랩홀딩스')">
       <div class="co-av" style="background:rgba(251,191,36,.15);color:#fbbf24">SH</div>스파크랩홀딩스
     </button>
@@ -214,9 +217,15 @@ var NOTIFY_EMAIL = 'gy.noh@sparklabs.co.kr';
 
 var COMPANY_MAP = {
   '스파크랩파트너스':'스파크랩파트너스','파트너스':'스파크랩파트너스','partners':'스파크랩파트너스',
-  '스파크랩벤처스':'스파크랩벤처스','벤처스':'스파크랩벤처스','ventures':'스파크랩벤처스','KF1':'스파크랩벤처스',
+  '스파크랩벤처스':'스파크랩벤처스','벤처스':'스파크랩벤처스','ventures':'스파크랩벤처스','KF1':'스파크랩벤처스','kf1':'스파크랩벤처스',
   '스파크랩홀딩스':'스파크랩홀딩스','홀딩스':'스파크랩홀딩스','holdings':'스파크랩홀딩스',
+  'KF3':'KF3','kf3':'KF3','3호':'KF3',
   '스파크랩':'스파크랩','sparklabs':'스파크랩'
+};
+
+// Drive 폴더명 매핑 (COMPANY_MAP 값 → 실제 Drive 폴더명)
+var FOLDER_NAME_MAP = {
+  'KF3': 'PEF펀드(KF3)',
 };
 
 var DOC_KEYS = [
@@ -419,11 +428,12 @@ async function driveSearch(company, docType, period) {
   if (d1.error) return { noAccess:true };
   if (!d1.files || !d1.files.length) return { found:false, folderName:company };
 
-  // Step 2: 법인명 매칭 (exact → contains → 역방향)
+  // Step 2: 법인명 매칭 (FOLDER_NAME_MAP 우선 적용)
+  var driveFolderName = FOLDER_NAME_MAP[company] || company;
   var folders = d1.files;
-  var folder = folders.find(function(f){ return f.name === company; })
-            || folders.find(function(f){ return f.name.indexOf(company) !== -1; })
-            || folders.find(function(f){ return company.indexOf(f.name) !== -1; });
+  var folder = folders.find(function(f){ return f.name === driveFolderName; })
+            || folders.find(function(f){ return f.name.indexOf(driveFolderName) !== -1; })
+            || folders.find(function(f){ return driveFolderName.indexOf(f.name) !== -1; });
   console.log('[Drive] 매칭 폴더:', folder ? folder.name : '없음');
   if (!folder) return { found:false, folderName:company };
 
@@ -531,9 +541,10 @@ async function findFinFolder(company) {
   if (d1.error) return { noAccess:true };
 
   var folders = d1.files || [];
-  var companyFolder = folders.find(function(f){ return f.name === company; })
-                  || folders.find(function(f){ return f.name.indexOf(company) !== -1; })
-                  || folders.find(function(f){ return company.indexOf(f.name) !== -1; });
+  var driveFolderName = FOLDER_NAME_MAP[company] || company;
+  var companyFolder = folders.find(function(f){ return f.name === driveFolderName; })
+                  || folders.find(function(f){ return f.name.indexOf(driveFolderName) !== -1; })
+                  || folders.find(function(f){ return driveFolderName.indexOf(f.name) !== -1; });
   if (!companyFolder) return { found:false };
 
   // 법인폴더 안에서 재무제표 서브폴더 찾기
