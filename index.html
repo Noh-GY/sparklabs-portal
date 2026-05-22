@@ -214,6 +214,8 @@ var CLIENT_ID    = '1024985574266-k9rdcv832k4kcka6o1v3m0td9jtvs9vv.apps.googleus
 var ROOT_ID      = '14Ip83Wp4aj2EW6At_B-M2NGFdFq1BE4s';
 var FUND_LINK    = 'https://drive.google.com/drive/folders/1UNybXPu14KD514PLFUdfLcoGVjNDMbFm';
 var NOTIFY_EMAIL = 'gy.noh@sparklabs.co.kr';
+var SHEET_ID     = '1NJ3Sj0C1bGaQSHkKgwsh_IWCDkto_vCg3NeZP3R9Eqk';
+console.log('[Portal] v15 로드됨');
 
 var COMPANY_MAP = {
   '스파크랩파트너스':'스파크랩파트너스','파트너스':'스파크랩파트너스','partners':'스파크랩파트너스',
@@ -229,9 +231,10 @@ var FOLDER_NAME_MAP = {
 };
 
 var DOC_KEYS = [
+  ['고유번호증','고유번호증'],
   ['사업자등록증명','사업자등록증명'],['사업자증명','사업자등록증명'],
   ['사업자등록증','사업자등록증'],['사업자','사업자등록증'],
-  ['법인등기부등본','법인등기부등본'],['법인등기','법인등기부등본'],['등기부','법인등기부등본'],['등기','법인등기부등본'],
+  ['법인등기부등본','법인등기부등본'],['법인등기','법인등기부등본'],['등기부','법인등기부등본'],['등본','법인등기부등본'],['등기','법인등기부등본'],
   ['재무제표','재무제표'],['재무','재무제표'],
   ['인감증명서','인감증명서'],['인감증명','인감증명서'],['인감','인감증명서'],
   ['정관','정관'],['주주명부','주주명부']
@@ -259,7 +262,12 @@ window.onload = function() {
     if (t) {
       token = t;
       history.replaceState(null,'',location.pathname);
-      addBotMsg('✅ Google 로그인 완료! 서류를 요청해 주세요.');
+      setInputEnabled(true);
+      addBotMsg('✅ Google 로그인 완료! 폴더를 스캔하는 중입니다...');
+      initFolderIds().then(function(map){
+        if (map) addBotMsg('📂 ' + Object.keys(map).length + '개 폴더 확인 완료. 서류를 요청해 주세요.');
+        else addBotMsg('⚠️ 폴더 스캔 실패. Drive 접근 권한을 확인해 주세요.');
+      });
       return;
     }
   }
@@ -415,83 +423,104 @@ function parseReq(text) {
   return { company:company, docType:docType, period:period };
 }
 
-// ── Drive API ─────────────────────────────────────────
-async function driveSearch(company, docType, period) {
+// ── Drive 설정 ────────────────────────────────────────
+var DOC_PATTERNS = {
+  '사업자등록증':   ['사업자등록증'],
+  '사업자등록증명': ['사업자등록증명'],
+  '법인등기부등본': ['법인등기부등본','등기부등본','등기부'],
+  '재무제표':       ['재무제표'],
+  '고유번호증':     ['고유번호증'],
+  '정관':           ['정관'],
+  '주주명부':       ['주주명부'],
+};
+
+var DRIVE_PARAMS = '&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives';
+
+// ── 폴더 ID 캐시 (로그인 후 1회 스캔) ────────────────
+var _folderIdMap   = null;  // { '스파크랩': 'id', ... }
+var _fileIndexMap  = null;  // { 'folderId': [files...], ... }
+
+// 루트 하위 폴더를 1회 스캔해서 ID 고정
+async function initFolderIds() {
+  if (_folderIdMap) return _folderIdMap;
   var h = { 'Authorization': 'Bearer ' + token };
+  var q = "'" + ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
+  var r = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) +
+    '&fields=files(id,name)&pageSize=100' + DRIVE_PARAMS, { headers: h });
+  if (r.status === 401 || r.status === 403) return null;
+  var d = await r.json();
+  if (d.error || !d.files) return null;
+  _folderIdMap = {};
+  d.files.forEach(function(f) { _folderIdMap[f.name] = f.id; });
+  console.log('[Drive] 폴더 ID 확정:', Object.keys(_folderIdMap));
+  return _folderIdMap;
+}
 
-  // Step 1: 루트 하위 폴더 목록
-  var q1 = "'" + ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
-  var r1 = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q1) + '&fields=files(id,name)&pageSize=50', { headers: h });
-  if (r1.status === 401 || r1.status === 403) return { noAccess:true };
-  var d1 = await r1.json();
-  console.log('[Drive] 루트 하위 폴더:', d1.files && d1.files.map(function(f){ return f.name; }));
-  if (d1.error) return { noAccess:true };
-  if (!d1.files || !d1.files.length) return { found:false, folderName:company };
+// 회사명 → 실제 폴더 ID
+function getFolderId(company) {
+  if (!_folderIdMap) return null;
+  var driveName = FOLDER_NAME_MAP[company] || company;
+  // exact → contains → reverse contains
+  var key = Object.keys(_folderIdMap).find(function(k){ return k === driveName; })
+         || Object.keys(_folderIdMap).find(function(k){ return k.indexOf(driveName) !== -1; })
+         || Object.keys(_folderIdMap).find(function(k){ return driveName.indexOf(k) !== -1; });
+  return key ? { id: _folderIdMap[key], name: key } : null;
+}
 
-  // Step 2: 법인명 매칭 (FOLDER_NAME_MAP 우선 적용)
-  var driveFolderName = FOLDER_NAME_MAP[company] || company;
-  var folders = d1.files;
-  var folder = folders.find(function(f){ return f.name === driveFolderName; })
-            || folders.find(function(f){ return f.name.indexOf(driveFolderName) !== -1; })
-            || folders.find(function(f){ return driveFolderName.indexOf(f.name) !== -1; });
-  console.log('[Drive] 매칭 폴더:', folder ? folder.name : '없음');
-  if (!folder) return { found:false, folderName:company };
-
-  // Step 3: 법인폴더 직속 파일 + 서브폴더 모두 조회
-  var q2 = "'" + folder.id + "' in parents and trashed=false";
-  var r2 = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q2) + '&fields=files(id,name,modifiedTime,mimeType,webViewLink)&pageSize=100', { headers: h });
-  if (r2.status === 401 || r2.status === 403) return { noAccess:true };
-  var d2 = await r2.json();
-  if (d2.error) return { noAccess:true };
-
-  var items = d2.files || [];
-  var allFiles = items.filter(function(f){ return f.mimeType !== 'application/vnd.google-apps.folder'; });
-  var subFolders = items.filter(function(f){ return f.mimeType === 'application/vnd.google-apps.folder'; });
-
-  // 디버그: 찾은 파일 목록을 채팅창에 표시
-  var debugMsg = '📋 [' + folder.name + '] 폴더에서 찾은 파일:\n' + (allFiles.length ? allFiles.map(function(f){ return '• ' + f.name; }).join('\n') : '(파일 없음)');
-  addBotMsg(debugMsg);
-
-  // Step 4: 서브폴더 안 파일도 조회 (재무제표 폴더 등)
-  for (var i = 0; i < subFolders.length; i++) {
-    var q3 = "'" + subFolders[i].id + "' in parents and trashed=false";
-    var r3 = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q3) + '&fields=files(id,name,modifiedTime,mimeType,webViewLink)&pageSize=100', { headers: h });
-    if (r3.status === 401 || r3.status === 403) continue;
-    var d3 = await r3.json();
-    if (d3.files) {
-      var subFiles = d3.files.filter(function(f){ return f.mimeType !== 'application/vnd.google-apps.folder'; });
-      console.log('[Drive] 서브폴더(' + subFolders[i].name + ') 파일:', subFiles.map(function(f){ return f.name; }));
-      allFiles = allFiles.concat(subFiles);
+// ── 재귀 파일 인덱싱 ──────────────────────────────────
+async function listAllFiles(folderId, h) {
+  if (_fileIndexMap && _fileIndexMap[folderId]) return _fileIndexMap[folderId];
+  var all = [];
+  async function walk(id) {
+    var q = "'" + id + "' in parents and trashed=false";
+    var url = 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) +
+      '&fields=files(id,name,mimeType,modifiedTime,webViewLink)&pageSize=1000' + DRIVE_PARAMS;
+    var res = await fetch(url, { headers: h });
+    if (res.status !== 200) return;
+    var data = await res.json();
+    for (var i = 0; i < (data.files || []).length; i++) {
+      var f = data.files[i];
+      if (f.mimeType === 'application/vnd.google-apps.folder') {
+        await walk(f.id);
+      } else {
+        all.push(f);
+      }
     }
   }
+  await walk(folderId);
+  if (!_fileIndexMap) _fileIndexMap = {};
+  _fileIndexMap[folderId] = all;
+  console.log('[Drive] 인덱싱 완료 (' + folderId + '):', all.length + '개 파일');
+  return all;
+}
 
-  // Step 5: 서류명 필터 - 파일명 어느 위치에 있어도 매칭
-  // 지원 패턴: 서류명_법인명_날짜.pdf / 법인명_서류명_날짜.pdf
-  var matched = allFiles.filter(function(f) {
+// ── Drive 검색 ────────────────────────────────────────
+async function driveSearch(company, docType, period) {
+  var h = { 'Authorization': 'Bearer ' + token };
+  await initFolderIds();
+  var folderInfo = getFolderId(company);
+  if (!folderInfo) return { found: false, folderName: company };
+
+  var files = await listAllFiles(folderInfo.id, h);
+  var patterns = DOC_PATTERNS[docType] || [docType];
+
+  var matched = files.filter(function(f) {
     var name = f.name;
-    if (docType === '사업자등록증') {
-      // '사업자등록증명'은 제외, '사업자등록증'/'사업자동록증'(오타) 모두 포함
-      return (name.indexOf('사업자등록증') !== -1 || name.indexOf('사업자동록증') !== -1)
-          && name.indexOf('사업자등록증명') === -1;
-    }
-    return name.indexOf(docType) !== -1;
+    var hit = patterns.some(function(p){ return name.indexOf(p) !== -1; });
+    if (!hit) return false;
+    if (docType === '사업자등록증') return name.indexOf('사업자등록증명') === -1;
+    return true;
   });
-  console.log('[Drive] 최종 매칭 파일 (' + docType + '):', matched.map(function(f){ return f.name; }));
-  if (!matched.length) return { found:false, folderName:folder.name };
 
-  // 최신순 정렬
+  console.log('[Drive] 매칭 결과 (' + company + '/' + docType + '):', matched.map(function(f){ return f.name; }));
+  if (!matched.length) return { found: false, folderName: folderInfo.name };
+
   matched.sort(function(a,b){ return new Date(b.modifiedTime) - new Date(a.modifiedTime); });
   var f = matched[0];
-  // 다운로드: export=download 방식 대신 webViewLink에서 ID 추출해 직접 다운로드
-  var fileId = f.id;
   return {
-    found:true, folderName:folder.name,
-    file:{
-      name:f.name,
-      modifiedTime:f.modifiedTime,
-      viewLink:f.webViewLink,
-      downloadLink:'https://drive.google.com/file/d/' + fileId + '/view?usp=sharing'
-    }
+    found: true, folderName: folderInfo.name,
+    file: { name: f.name, modifiedTime: f.modifiedTime, viewLink: f.webViewLink,
+            downloadLink: 'https://drive.google.com/file/d/' + f.id + '/view' }
   };
 }
 
@@ -529,18 +558,25 @@ function makeFundCard(userText) {
   return card;
 }
 
-var SHEET_ID = '1NJ3Sj0C1bGaQSHkKgwsh_IWCDkto_vCg3NeZP3R9Eqk';
-
 // ── 번호 키워드 감지 ──────────────────────────────────
 var NUM_KEYS = [
   ['사업자등록번호', '사업자등록번호'],
-  ['법인등록번호', '법인등록번호'],
-  ['펀드등록번호', '펀드등록번호'],
-  ['사업자번호', '사업자등록번호'],
-  ['법인번호', '법인등록번호'],
-  ['펀드번호', '펀드등록번호'],
-  ['등록번호', '등록번호'],
+  ['법인등록번호',   '법인등록번호'],
+  ['펀드등록번호',   '펀드등록번호'],
+  ['고유번호',       '사업자등록번호'],  // 펀드 고유번호 = 사업자등록번호
+  ['사업자번호',     '사업자등록번호'],
+  ['법인번호',       '법인등록번호'],
+  ['펀드번호',       '펀드등록번호'],
+  ['등록번호',       '등록번호'],
 ];
+
+// 펀드 유형 상위폴더명
+var FUND_CATEGORY_FOLDERS = ['개인투자조합', '모태펀드', '민간펀드'];
+
+// 펀드 요청 여부 판별 — 펀드 카테고리명 또는 알려진 펀드명 패턴
+function isFundRequest(text) {
+  return /KF\d|디스커버리|펀드|fund|조합/i.test(text);
+}
 
 function parseNumType(text) {
   for (var i=0; i<NUM_KEYS.length; i++) {
@@ -554,6 +590,46 @@ function parseBranch(text) {
   if (text.indexOf('부산') !== -1) return '부산';
   if (text.indexOf('포항') !== -1) return '포항';
   return null;
+}
+
+// ── 펀드 고유번호증 Drive 탐색 ────────────────────────
+// 구조: ROOT > [개인투자조합|모태펀드|민간펀드] > (펀드폴더) > 고유번호증_펀드명.pdf
+async function searchFundDoc(fundKeyword, docKeyword) {
+  var h = { 'Authorization': 'Bearer ' + token };
+  await initFolderIds();
+
+  // 카테고리 폴더 ID 확인
+  var catIds = FUND_CATEGORY_FOLDERS.map(function(cat){
+    var key = Object.keys(_folderIdMap || {}).find(function(k){ return k.indexOf(cat) !== -1; });
+    return key ? { id: _folderIdMap[key], name: key } : null;
+  }).filter(Boolean);
+
+  console.log('[Drive] 펀드 카테고리 폴더:', catIds.map(function(f){ return f.name; }));
+  if (!catIds.length) return { found: false };
+
+  // 각 카테고리 폴더 재귀 인덱싱
+  var allFiles = [];
+  for (var i = 0; i < catIds.length; i++) {
+    var files = await listAllFiles(catIds[i].id, h);
+    files.forEach(function(f){ f._catFolder = catIds[i].name; });
+    allFiles = allFiles.concat(files);
+  }
+
+  // 서류명 필터
+  var matched = allFiles.filter(function(f){ return f.name.indexOf(docKeyword) !== -1; });
+
+  // 펀드명 키워드 필터 (있을 때만)
+  if (fundKeyword) {
+    var byFund = matched.filter(function(f){ return f.name.indexOf(fundKeyword) !== -1; });
+    if (byFund.length) matched = byFund;
+  }
+
+  console.log('[Drive] 펀드 문서 결과:', matched.map(function(f){ return f.name; }));
+  if (!matched.length) return { found: false };
+
+  matched.sort(function(a,b){ return new Date(b.modifiedTime) - new Date(a.modifiedTime); });
+  var f = matched[0];
+  return { found: true, fundName: f._catFolder || f.name, file: { name: f.name, modifiedTime: f.modifiedTime, viewLink: f.webViewLink } };
 }
 
 // ── Sheets API: 번호 조회 ─────────────────────────────
@@ -578,6 +654,7 @@ async function fetchNumber(company, numType, branch) {
   var colBiz     = header.indexOf('사업자등록번호');
   var colCorp    = header.indexOf('법인등록번호');
   var colFund    = header.indexOf('펀드등록번호');
+  var colUniq    = header.indexOf('고유번호');
 
   // 드라이브 폴더명 → 시트의 법인명 역매핑
   var sheetName = company;
@@ -602,18 +679,18 @@ async function fetchNumber(company, numType, branch) {
 
   // 요청 번호 타입에 맞게 반환
   var result = {
-    company:  row[colCompany] || company,
-    branch:   row[colBranch]  || '',
-    biz:      colBiz  >= 0 ? (row[colBiz]  || '') : '',
-    corp:     colCorp >= 0 ? (row[colCorp] || '') : '',
-    fund:     colFund >= 0 ? (row[colFund] || '') : '',
+    company: row[colCompany] || company,
+    branch:  row[colBranch]  || '',
+    biz:     colBiz  >= 0 ? (row[colBiz]  || '') : '',
+    corp:    colCorp >= 0 ? (row[colCorp] || '') : '',
+    fund:    colFund >= 0 ? (row[colFund] || '') : '',
+    uniq:    colUniq >= 0 ? (row[colUniq] || '') : '',
   };
 
-  if (numType === '사업자등록번호') return { found: !!result.biz,  value: result.biz,  ...result };
-  if (numType === '법인등록번호')   return { found: !!result.corp, value: result.corp, ...result };
-  if (numType === '펀드등록번호')   return { found: !!result.fund, value: result.fund, ...result };
-  // '등록번호' 등 모호한 경우 전체 반환
-  return { found: true, value: null, ...result };
+  if (numType === '사업자등록번호') return Object.assign({ found: !!result.biz, value: result.biz }, result);
+  if (numType === '법인등록번호')   return Object.assign({ found: !!result.corp, value: result.corp }, result);
+  if (numType === '펀드등록번호')   return Object.assign({ found: !!result.fund, value: result.fund }, result);
+  return Object.assign({ found: true, value: null }, result);
 }
 
 // ── 번호 카드 ─────────────────────────────────────────
@@ -646,36 +723,21 @@ function makeNumCard(numResult, numType, company, branch) {
 }
 async function findFinFolder(company) {
   var h = { 'Authorization': 'Bearer ' + token };
+  await initFolderIds();
+  var folderInfo = getFolderId(company);
+  if (!folderInfo) return { found: false };
 
-  // 법인 폴더 찾기
-  var q1 = "'" + ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
-  var r1 = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q1) + '&fields=files(id,name)&pageSize=50', { headers: h });
-  if (r1.status === 401 || r1.status === 403) return { noAccess:true };
-  var d1 = await r1.json();
-  if (d1.error) return { noAccess:true };
+  // 법인폴더 직속 서브폴더 중 재무 관련 폴더 탐색
+  var q = "'" + folderInfo.id + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
+  var r = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) +
+    '&fields=files(id,name)&pageSize=50' + DRIVE_PARAMS, { headers: h });
+  if (r.status === 401 || r.status === 403) return { noAccess: true };
+  var d = await r.json();
+  if (d.error) return { noAccess: true };
 
-  var folders = d1.files || [];
-  var driveFolderName = FOLDER_NAME_MAP[company] || company;
-  var companyFolder = folders.find(function(f){ return f.name === driveFolderName; })
-                  || folders.find(function(f){ return f.name.indexOf(driveFolderName) !== -1; })
-                  || folders.find(function(f){ return driveFolderName.indexOf(f.name) !== -1; });
-  if (!companyFolder) return { found:false };
-
-  // 법인폴더 안에서 재무제표 서브폴더 찾기
-  var q2 = "'" + companyFolder.id + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
-  var r2 = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q2) + '&fields=files(id,name)&pageSize=50', { headers: h });
-  if (r2.status === 401 || r2.status === 403) return { noAccess:true };
-  var d2 = await r2.json();
-  if (d2.error) return { noAccess:true };
-
-  var subFolders = d2.files || [];
-  var finFolder = subFolders.find(function(f){ return f.name.indexOf('재무') !== -1; });
-  if (!finFolder) return { found:false };
-
-  return {
-    found: true,
-    folderLink: 'https://drive.google.com/drive/folders/' + finFolder.id
-  };
+  var finFolder = (d.files || []).find(function(f){ return f.name.indexOf('재무') !== -1; });
+  if (!finFolder) return { found: false };
+  return { found: true, folderLink: 'https://drive.google.com/drive/folders/' + finFolder.id };
 }
 
 // ── 폴더 링크 카드 ────────────────────────────────────
@@ -736,11 +798,35 @@ async function send() {
       removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
       var branchLabel = branch ? ' ' + branch : '';
       var msg = (numResult.notFound || numResult.error)
-        ? '⚠️ ' + parsed.company + branchLabel + ' ' + numType + ' 정보가 없습니다.'
+        ? '⚠️ ' + parsed.company + branchLabel + ' ' + numType + ' 정보가 스프레드시트에 없습니다. 노가영님께 등록 요청하세요.'
         : numResult.noAccess
           ? '🔒 스프레드시트 접근 권한이 없습니다.'
           : '🔢 ' + parsed.company + branchLabel + ' 등록번호입니다.';
       addBotMsg(msg, makeNumCard(numResult, numType, parsed.company, branch));
+      return;
+    }
+
+    // 펀드 고유번호증 탐색
+    if (parsed.docType === '고유번호증' || (text.indexOf('고유번호증') !== -1 && isFundRequest(text))) {
+      // 펀드명 추출: 불필요한 키워드 제거
+      var fundKeyword = text
+        .replace(/고유번호증|서류|찾아줘|주세요|줘|의|에서|펀드|fund/gi,'')
+        .replace(/개인투자조합|모태펀드|민간펀드/g,'')
+        .trim();
+      var fundDocResult = await searchFundDoc(fundKeyword, '고유번호증');
+      removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
+      if (fundDocResult.noAccess) {
+        addBotMsg('🔒 접근 권한이 없습니다. 관리자에게 권한을 요청하세요.');
+      } else if (fundDocResult.found) {
+        var f = fundDocResult.file;
+        var date = new Date(f.modifiedTime).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+        var card = document.createElement('div');
+        card.className = 'doc-card';
+        card.innerHTML = '<div class="card-head"><span>📄 고유번호증 — ' + fundDocResult.fundName + '</span><span class="tag tag-green">✓ 최신본</span></div><div class="card-body"><div class="meta-row"><span class="lbl">파일명</span><span class="val" style="font-size:11px">' + f.name + '</span></div><div class="meta-row"><span class="lbl">갱신일</span><span class="val">' + date + '</span></div><div class="card-actions"><a class="btn btn-accent" href="' + f.viewLink + '" target="_blank" style="flex:none">📂 Drive에서 열기</a></div></div>';
+        addBotMsg('✅ ' + fundDocResult.fundName + ' 고유번호증을 찾았습니다.', card);
+      } else {
+        addBotMsg('⚠️ 해당 펀드 고유번호증을 찾지 못했습니다.\n파일명 규칙: 고유번호증_펀드명.pdf', makeCard({found:false, folderName:'펀드'}, {docType:'고유번호증', company:parsed.company}));
+      }
       return;
     }
     if (parsed.docType === '펀드재무제표') {
