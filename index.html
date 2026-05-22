@@ -560,9 +560,12 @@ function parseBranch(text) {
 async function fetchNumber(company, numType, branch) {
   var range = encodeURIComponent('시트1!A:F');
   var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID + '/values/' + range;
+  console.log('[Sheets] 요청 URL:', url);
   var res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
+  console.log('[Sheets] 응답 상태:', res.status);
   if (res.status === 401 || res.status === 403) return { noAccess: true };
   var data = await res.json();
+  console.log('[Sheets] 응답 데이터:', data);
   if (data.error) return { error: true };
 
   var rows = data.values || [];
