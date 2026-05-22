@@ -271,7 +271,7 @@ window.onload = function() {
 // ── 로그인 ────────────────────────────────────────────
 function doLogin() {
   var redirect = encodeURIComponent(location.origin + location.pathname);
-  var scope = encodeURIComponent('https://www.googleapis.com/auth/drive.readonly');
+  var scope = encodeURIComponent('https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets.readonly');
   location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + CLIENT_ID + '&redirect_uri=' + redirect + '&response_type=token&scope=' + scope;
 }
 
@@ -529,7 +529,118 @@ function makeFundCard(userText) {
   return card;
 }
 
-// ── 법인 재무제표 폴더 탐색 ──────────────────────────
+var SHEET_ID = '1NJ3Sj0C1bGaQSHkKgwsh_IWCDkto_vCg3NeZP3R9Eqk';
+
+// ── 번호 키워드 감지 ──────────────────────────────────
+var NUM_KEYS = [
+  ['사업자등록번호', '사업자등록번호'],
+  ['법인등록번호', '법인등록번호'],
+  ['펀드등록번호', '펀드등록번호'],
+  ['사업자번호', '사업자등록번호'],
+  ['법인번호', '법인등록번호'],
+  ['펀드번호', '펀드등록번호'],
+  ['등록번호', '등록번호'],
+];
+
+function parseNumType(text) {
+  for (var i=0; i<NUM_KEYS.length; i++) {
+    if (text.indexOf(NUM_KEYS[i][0]) !== -1) return NUM_KEYS[i][1];
+  }
+  return null;
+}
+
+// 지사 감지
+function parseBranch(text) {
+  if (text.indexOf('부산') !== -1) return '부산';
+  if (text.indexOf('포항') !== -1) return '포항';
+  return null;
+}
+
+// ── Sheets API: 번호 조회 ─────────────────────────────
+async function fetchNumber(company, numType, branch) {
+  var range = encodeURIComponent('시트1!A:F');
+  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID + '/values/' + range;
+  var res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
+  if (res.status === 401 || res.status === 403) return { noAccess: true };
+  var data = await res.json();
+  if (data.error) return { error: true };
+
+  var rows = data.values || [];
+  if (!rows.length) return { notFound: true };
+
+  // 헤더 파악: 법인명, 구분, 사업자등록번호, 법인등록번호, 펀드등록번호
+  var header = rows[0].map(function(h){ return h.trim(); });
+  var colCompany = header.indexOf('법인명');
+  var colBranch  = header.indexOf('구분');
+  var colBiz     = header.indexOf('사업자등록번호');
+  var colCorp    = header.indexOf('법인등록번호');
+  var colFund    = header.indexOf('펀드등록번호');
+
+  // 드라이브 폴더명 → 시트의 법인명 역매핑
+  var sheetName = company;
+  if (company === 'KF3') sheetName = 'KF3';
+
+  // 행 탐색
+  var matched = rows.slice(1).filter(function(row) {
+    var rowCompany = (row[colCompany] || '').trim();
+    var rowBranch  = (row[colBranch]  || '').trim();
+    var companyMatch = rowCompany === sheetName
+                    || rowCompany.indexOf(sheetName) !== -1
+                    || sheetName.indexOf(rowCompany) !== -1;
+    if (!companyMatch) return false;
+    // 지사 필터
+    if (branch) return rowBranch.indexOf(branch) !== -1;
+    // 지사 미지정 시 본사 우선
+    return rowBranch === '본사' || rowBranch === '-' || rowBranch === '' || !branch;
+  });
+
+  if (!matched.length) return { notFound: true };
+  var row = matched[0];
+
+  // 요청 번호 타입에 맞게 반환
+  var result = {
+    company:  row[colCompany] || company,
+    branch:   row[colBranch]  || '',
+    biz:      colBiz  >= 0 ? (row[colBiz]  || '') : '',
+    corp:     colCorp >= 0 ? (row[colCorp] || '') : '',
+    fund:     colFund >= 0 ? (row[colFund] || '') : '',
+  };
+
+  if (numType === '사업자등록번호') return { found: !!result.biz,  value: result.biz,  ...result };
+  if (numType === '법인등록번호')   return { found: !!result.corp, value: result.corp, ...result };
+  if (numType === '펀드등록번호')   return { found: !!result.fund, value: result.fund, ...result };
+  // '등록번호' 등 모호한 경우 전체 반환
+  return { found: true, value: null, ...result };
+}
+
+// ── 번호 카드 ─────────────────────────────────────────
+function makeNumCard(numResult, numType, company, branch) {
+  var card = document.createElement('div');
+  card.className = 'doc-card';
+
+  if (numResult.noAccess) {
+    card.innerHTML = '<div class="card-head"><span>🔢 등록번호</span><span class="tag tag-amber">접근 권한 없음</span></div><div class="card-body"><div style="font-size:13px">스프레드시트 접근 권한이 없습니다.<br>관리자에게 문의하세요.</div></div>';
+    return card;
+  }
+  if (numResult.notFound || numResult.error) {
+    card.innerHTML = '<div class="card-head"><span>🔢 등록번호</span><span class="tag tag-red">미등록</span></div><div class="card-body"><div style="font-size:13px;margin-bottom:8px">스프레드시트에 해당 항목이 없습니다.</div><button class="btn" onclick="emailRequest(\'' + company + '\',\'' + numType + '\')">📧 등록 요청 이메일</button></div>';
+    return card;
+  }
+
+  var label = numResult.company + (numResult.branch && numResult.branch !== '본사' && numResult.branch !== '-' ? ' ' + numResult.branch : '');
+  var rows = '';
+  if (numResult.biz)  rows += '<div class="meta-row"><span class="lbl">사업자등록번호</span><span class="val" style="font-size:13px;font-weight:500;color:var(--text)">' + numResult.biz  + '</span></div>';
+  if (numResult.corp) rows += '<div class="meta-row"><span class="lbl">법인등록번호</span><span class="val" style="font-size:13px;font-weight:500;color:var(--text)">'   + numResult.corp + '</span></div>';
+  if (numResult.fund) rows += '<div class="meta-row"><span class="lbl">펀드등록번호</span><span class="val" style="font-size:13px;font-weight:500;color:var(--text)">'   + numResult.fund + '</span></div>';
+
+  // 특정 번호 요청인데 값이 없으면
+  if (numType !== '등록번호' && !numResult.value) {
+    rows += '<div style="font-size:12px;color:var(--text3);margin-top:4px">' + numType + '이 등록되어 있지 않습니다.</div>';
+  }
+
+  card.innerHTML = '<div class="card-head"><span>🔢 ' + label + '</span><span class="tag tag-green">조회 완료</span></div><div class="card-body">' + rows + '</div>';
+  return card;
+}
 async function findFinFolder(company) {
   var h = { 'Authorization': 'Bearer ' + token };
 
@@ -609,11 +720,26 @@ async function send() {
   addUserMsg(text);
 
   var parsed = parseReq(text);
+  var numType = parseNumType(text);
+  var branch  = parseBranch(text);
   addTyping();
   var lb = document.getElementById('lb');
   lb.style.width = '40%';
 
   try {
+    // 번호 조회 요청
+    if (numType) {
+      var numResult = await fetchNumber(parsed.company, numType, branch);
+      removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
+      var branchLabel = branch ? ' ' + branch : '';
+      var msg = (numResult.notFound || numResult.error)
+        ? '⚠️ ' + parsed.company + branchLabel + ' ' + numType + ' 정보가 없습니다.'
+        : numResult.noAccess
+          ? '🔒 스프레드시트 접근 권한이 없습니다.'
+          : '🔢 ' + parsed.company + branchLabel + ' 등록번호입니다.';
+      addBotMsg(msg, makeNumCard(numResult, numType, parsed.company, branch));
+      return;
+    }
     if (parsed.docType === '펀드재무제표') {
       removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
       addBotMsg('🏦 펀드 재무제표 폴더입니다. 없는 파일은 업데이트 요청 버튼을 눌러주세요.', makeFundCard(text));
@@ -636,7 +762,7 @@ async function send() {
 
     if (!parsed.docType) {
       removeTyping(); lb.style.width='0%';
-      addBotMsg('어떤 서류가 필요하신가요? (사업자등록증 / 사업자등록증명 / 법인등기부등본 / 재무제표 / 펀드 재무제표 / 인감증명서)');
+      addBotMsg('어떤 정보가 필요하신가요?\n서류: 사업자등록증 / 사업자등록증명 / 법인등기부등본 / 재무제표 / 펀드 재무제표 / 인감증명서\n번호: 사업자등록번호 / 법인등록번호 / 펀드등록번호');
       return;
     }
 
@@ -646,13 +772,20 @@ async function send() {
       return;
     }
 
-    var result = await driveSearch(parsed.company, parsed.docType, parsed.period);
+    // 지사 분기: 사업자등록증 + 지사 키워드 있으면 company에 지사명 합산
+    var searchCompany = parsed.company;
+    if (branch && parsed.docType === '사업자등록증') {
+      searchCompany = parsed.company + ' ' + branch;
+    }
+
+    var result = await driveSearch(searchCompany, parsed.docType, parsed.period);
     removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
 
+    var branchTxt = branch && parsed.docType === '사업자등록증' ? ' ' + branch : '';
     var msg = result.noAccess
       ? '🔒 이 서류에 대한 접근 권한이 없습니다. 관리자에게 권한을 요청하세요.'
       : result.found
-        ? '✅ ' + result.folderName + ' ' + parsed.docType + ' 최신본을 찾았습니다.'
+        ? '✅ ' + result.folderName + branchTxt + ' ' + parsed.docType + ' 최신본을 찾았습니다.'
         : '⚠️ Drive에서 파일을 찾지 못했습니다. 파일명 규칙을 확인하거나 노가영님께 요청하세요.';
 
     addBotMsg(msg, makeCard(result, parsed));
