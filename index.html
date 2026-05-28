@@ -636,7 +636,13 @@ async function driveSearch(corp, docType, branch) {
     var hit = patterns.some(function(p){ return name.indexOf(p) !== -1; });
     if (!hit) return false;
     if (docType === '사업자등록증' && name.indexOf('사업자등록증명') !== -1) return false;
-    if (branch && name.indexOf(branch) === -1) return false;
+    if (branch) {
+      // 지사 검색: 지사명 포함 여부만 확인
+      return name.indexOf(branch) !== -1;
+    }
+    // 본사 검색: 법인명 포함 + 지사명 없어야 함
+    var driveName = FOLDER_NAME_MAP[corp] || corp;
+    if (name.indexOf(driveName) === -1 && name.indexOf(corp) === -1) return false;
     return true;
   });
 
