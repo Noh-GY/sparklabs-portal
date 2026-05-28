@@ -189,22 +189,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
   <!-- 펀드 목록 (숨김) -->
   <div id="fund-nav" class="sb-section" style="display:none">
-    <div class="sb-label">펀드 카테고리</div>
-    <button class="nav-btn active" id="nav-fund-all" onclick="selectFundCat(this,'all')">
-      <div class="nav-av" style="background:rgba(99,179,237,.15);color:#63b3ed">전체</div>전체 펀드
-    </button>
-    <button class="nav-btn" id="nav-fund-pef" onclick="selectFundCat(this,'pef')">
-      <div class="nav-av" style="background:rgba(108,99,255,.15);color:#8b85ff">PEF</div>PEF펀드
-    </button>
-    <button class="nav-btn" id="nav-fund-prv" onclick="selectFundCat(this,'prv')">
-      <div class="nav-av" style="background:rgba(52,211,153,.15);color:#34d399">민간</div>민간펀드
-    </button>
-    <button class="nav-btn" id="nav-fund-vc" onclick="selectFundCat(this,'vc')">
-      <div class="nav-av" style="background:rgba(251,191,36,.15);color:#fbbf24">개투</div>개인투자조합
-    </button>
-    <button class="nav-btn" id="nav-fund-gov" onclick="selectFundCat(this,'gov')">
-      <div class="nav-av" style="background:rgba(248,113,113,.15);color:#f87171">모태</div>모태펀드
-    </button>
+    <div class="sb-label" style="padding:8px 8px 4px">펀드 서류 바로가기</div>
+    <div style="font-size:12px;color:var(--text2);padding:4px 8px;line-height:1.7">
+      아래 버튼으로<br>Drive 폴더에 바로 접근하세요.
+    </div>
   </div>
 
   <div class="sb-footer">
@@ -383,7 +371,7 @@ function switchTab(tab) {
   } else {
     document.getElementById('main-title').textContent = '펀드';
     document.getElementById('main-sub').textContent = '펀드 서류 · 고유번호증 · 재무제표';
-    renderFundDashboard(currentFundCat);
+    renderFundDashboard();
   }
 }
 
@@ -495,84 +483,29 @@ function renderDocTile(doc, result, corp) {
 }
 
 // ── 펀드 대시보드 렌더 ────────────────────────────────
-async function renderFundDashboard(cat) {
+var FUND_DOC_LINK = 'https://drive.google.com/drive/folders/13Vwpucz08tMxDnMMz7ZkZYdAT1B3NEPQ';
+var FUND_FIN_LINK = 'https://drive.google.com/drive/folders/1UNybXPu14KD514PLFUdfLcoGVjNDMbFm';
+
+function renderFundDashboard() {
   var container = document.getElementById('fund-dashboard');
-  var catDef = FUND_CATS[cat];
-  container.innerHTML = '<div class="section-title">' + catDef.label + '</div>' +
-    '<div id="fund-grid-loading" style="color:var(--text3);font-size:12px;margin-bottom:16px">폴더 로딩 중...</div>';
+  container.innerHTML =
+    '<div class="section-title" style="margin-top:0">펀드 서류</div>' +
+    '<div class="doc-grid" style="grid-template-columns:1fr 1fr;max-width:540px">' +
 
-  var h = { 'Authorization': 'Bearer ' + token };
-  await initFolderIds();
+    '<a class="doc-tile" href="' + FUND_DOC_LINK + '" target="_blank" style="text-decoration:none;cursor:pointer">' +
+    '<div class="tile-head"><span class="tile-name"><span class="tile-icon">📄</span>고유번호증 · 법인 서류</span></div>' +
+    '<div class="tile-meta">고유번호증, 사업자등록증 등<br>펀드 법인 서류 폴더</div>' +
+    '<div class="tile-action"><span class="btn btn-sm btn-accent" style="justify-content:center;width:100%">📂 Drive 폴더 열기</span></div>' +
+    '</a>' +
 
-  // ── 고유번호증: ROOT_ID 하위 카테고리 폴더에서 탐색 ──
-  var FUND_CAT_NAMES = ['개인투자조합','모태펀드','민간펀드','PEF펀드'];
-  var catFolders = Object.keys(_folderIdMap || {}).filter(function(k){
-    return FUND_CAT_NAMES.some(function(c){ return k.indexOf(c) !== -1; });
-  });
+    '<a class="doc-tile" href="' + FUND_FIN_LINK + '" target="_blank" style="text-decoration:none;cursor:pointer">' +
+    '<div class="tile-head"><span class="tile-name"><span class="tile-icon">📊</span>펀드 재무제표</span></div>' +
+    '<div class="tile-meta">펀드별 월간 재무제표<br>파일명: 재무제표_펀드명_YYYYMM.pdf</div>' +
+    '<div class="tile-action"><span class="btn btn-sm btn-accent" style="justify-content:center;width:100%">📂 Drive 폴더 열기</span></div>' +
+    '</a>' +
 
-  // 카테고리 필터
-  var targetCatFolders = catFolders.filter(function(k){
-    if (cat === 'all') return true;
-    var catMap = { pef:'PEF펀드', prv:'민간펀드', vc:'개인투자조합', gov:'모태펀드' };
-    return k.indexOf(catMap[cat] || '') !== -1;
-  });
-
-  // 각 카테고리 하위 펀드 폴더 목록 (고유번호증용)
-  var allFundFolders = [];
-  for (var i=0; i<targetCatFolders.length; i++) {
-    var catId = _folderIdMap[targetCatFolders[i]];
-    var q = "'" + catId + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
-    var r = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) + '&fields=files(id,name)&pageSize=100' + DRIVE_PARAMS, { headers: h });
-    if (r.status !== 200) continue;
-    var d = await r.json();
-    (d.files || []).forEach(function(f){ f._cat = targetCatFolders[i]; allFundFolders.push(f); });
-  }
-
-  // ── 재무제표: FUND_ROOT_ID 하위 폴더에서 탐색 ──
-  var finFolders = [];
-  var finQ = "'" + FUND_ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
-  var finR = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(finQ) + '&fields=files(id,name)&pageSize=100' + DRIVE_PARAMS, { headers: h });
-  if (finR.status === 200) {
-    var finD = await finR.json();
-    finFolders = finD.files || [];
-  }
-
-  // 렌더
-  var html = '';
-
-  // 고유번호증 섹션
-  html += '<div class="section-title" style="margin-top:0">📄 고유번호증 · 법인 서류</div>';
-  if (!allFundFolders.length) {
-    html += '<div style="color:var(--text3);font-size:12px;margin-bottom:16px">등록된 펀드 폴더가 없습니다.</div>';
-  } else {
-    html += '<div class="fund-grid" style="margin-bottom:20px">';
-    allFundFolders.forEach(function(folder) {
-      var link = 'https://drive.google.com/drive/folders/' + folder.id;
-      html += '<a class="fund-link-card" href="' + link + '" target="_blank" style="text-decoration:none;color:inherit">' +
-        '<div><div class="fund-link-name">' + folder.name + '</div>' +
-        '<div class="fund-link-sub">' + folder._cat + '</div></div>' +
-        '<span style="color:var(--text3);font-size:12px">↗</span></a>';
-    });
-    html += '</div>';
-  }
-
-  // 재무제표 섹션
-  html += '<div class="section-title">📊 펀드 재무제표</div>';
-  if (!finFolders.length) {
-    html += '<div style="color:var(--text3);font-size:12px;margin-bottom:16px">재무제표 폴더를 찾지 못했습니다.</div>';
-  } else {
-    html += '<div class="fund-grid">';
-    finFolders.forEach(function(folder) {
-      var link = 'https://drive.google.com/drive/folders/' + folder.id;
-      html += '<a class="fund-link-card" href="' + link + '" target="_blank" style="text-decoration:none;color:inherit">' +
-        '<div><div class="fund-link-name">' + folder.name + '</div>' +
-        '<div class="fund-link-sub">재무제표</div></div>' +
-        '<span style="color:var(--text3);font-size:12px">↗</span></a>';
-    });
-    html += '</div>';
-  }
-
-  container.innerHTML = html;
+    '</div>' +
+    '<div style="margin-top:16px;font-size:12px;color:var(--text3)">특정 펀드 서류나 번호 조회는 아래 챗봇에서 요청하세요.</div>';
 }
 
 // ── 번호 로드 (Sheets) ────────────────────────────────
