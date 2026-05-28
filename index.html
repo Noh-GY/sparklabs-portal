@@ -482,7 +482,7 @@ function renderDocTile(doc, result, corp) {
 }
 
 // ── 펀드 대시보드 렌더 ────────────────────────────────
-var FUND_DOC_LINK = 'https://drive.google.com/drive/folders/13Vwpucz08tMxDnMMz7ZkZYdAT1B3NEPQ';
+var FUND_DOC_LINK = 'https://drive.google.com/drive/folders/14Ip83Wp4aj2EW6At_B-M2NGFdFq1BE4s';
 var FUND_FIN_LINK = 'https://drive.google.com/drive/folders/1UNybXPu14KD514PLFUdfLcoGVjNDMbFm';
 
 function renderFundDashboard() {
@@ -530,23 +530,27 @@ async function loadNumbers(corp) {
   if (!rows.length) return;
 
   var header = rows[0].map(function(h){ return h.trim(); });
-  var ci = header.indexOf('법인명');
-  var bi = header.indexOf('구분');
-  var bizI  = header.indexOf('사업자등록번호');
-  var corpI = header.indexOf('법인등록번호');
-  var fundI = header.indexOf('펀드등록번호');
+  var ci   = header.indexOf('법인명');
+  var bi   = header.indexOf('구분');
+  var bizI = header.indexOf('사업자등록번호');
+  var corpI= header.indexOf('법인등록번호');
+  var fundI= header.indexOf('펀드등록번호');
 
   var norm = function(s){ return (s||'').replace(/\s/g,'').toLowerCase(); };
   var normCorp = norm(corp);
 
-  var matched = rows.slice(1).filter(function(row){
-    var rowCo = norm(row[ci]||'');
-    var rowBr = (row[bi]||'').trim();
-    return rowCo === normCorp && (rowBr === '본사' || rowBr === '-' || rowBr === '');
+  // 구분 조건 없이 법인명만으로 매칭, 본사/법인 행 우선
+  var allMatched = rows.slice(1).filter(function(row){
+    return norm(row[ci]||'') === normCorp;
   });
-  if (!matched.length) matched = rows.slice(1).filter(function(row){ return norm(row[ci]||'') === normCorp; });
 
-  var row = matched[0] || [];
+  // 본사/법인 우선, 없으면 첫 번째
+  var preferred = allMatched.filter(function(row){
+    var br = (row[bi]||'').trim();
+    return br === '본사' || br === '법인' || br === '-' || br === '';
+  });
+  var row = (preferred.length ? preferred : allMatched)[0] || [];
+
   var biz  = bizI  >= 0 ? (row[bizI]  || '—') : '—';
   var corp2= corpI >= 0 ? (row[corpI] || '—') : '—';
   var fund = fundI >= 0 ? (row[fundI] || '')   : '';
@@ -789,15 +793,15 @@ async function fetchNumberChat(company, numType, branch) {
   var ci=header.indexOf('법인명'),bi=header.indexOf('구분'),bizI=header.indexOf('사업자등록번호'),corpI=header.indexOf('법인등록번호'),fundI=header.indexOf('펀드등록번호');
   var norm=function(s){return(s||'').replace(/\s/g,'').toLowerCase();};
   var normCo=norm(company);
-  var matched=rows.slice(1).filter(function(row){
-    var rowCo=norm(row[ci]||''); var rowBr=(row[bi]||'').trim();
-    var coMatch=rowCo===normCo||rowCo.indexOf(normCo)!==-1;
-    if(!coMatch) return false;
-    if(branch) return rowBr.indexOf(branch)!==-1;
-    return rowBr==='본사'||rowBr==='-'||rowBr==='';
+
+  var allMatched=rows.slice(1).filter(function(row){
+    return norm(row[ci]||'')===normCo;
   });
-  var exact=matched.filter(function(row){return norm(row[ci]||'')===normCo;});
-  if(exact.length) matched=exact;
+  var preferred=allMatched.filter(function(row){
+    var br=(row[bi]||'').trim();
+    return br==='본사'||br==='법인'||br==='-'||br==='';
+  });
+  var matched=preferred.length?preferred:allMatched;
   if(!matched.length) return {notFound:true};
   var row=matched[0];
   return {
