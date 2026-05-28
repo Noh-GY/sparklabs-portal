@@ -7,253 +7,338 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#0a0a0f;--surface:#111118;--surface2:#18181f;--surface3:#1f1f28;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
-  --text:#f0f0f5;--text2:#9090a8;--text3:#5a5a70;
-  --accent:#6c63ff;--accent2:#8b85ff;--glow:rgba(108,99,255,0.15);
-  --green:#34d399;--green-bg:rgba(52,211,153,0.1);
-  --amber:#fbbf24;--amber-bg:rgba(251,191,36,0.1);
-  --red:#f87171;--red-bg:rgba(248,113,113,0.1);
-  --r:12px;--rs:8px;
+  --bg:#0a0a0f; --surface:#111118; --surface2:#18181f; --surface3:#1f1f28;
+  --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.12);
+  --text:#f0f0f5; --text2:#9090a8; --text3:#5a5a70;
+  --accent:#6c63ff; --accent2:#8b85ff; --glow:rgba(108,99,255,.15);
+  --green:#34d399; --green-bg:rgba(52,211,153,.1);
+  --amber:#fbbf24; --amber-bg:rgba(251,191,36,.1);
+  --red:#f87171; --red-bg:rgba(248,113,113,.1);
+  --r:12px; --rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
 
+/* ── Layout ── */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+
+/* ── Sidebar ── */
 .sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
-.sb-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
-.logo-badge{display:inline-flex;align-items:center;gap:8px;background:var(--glow);border:1px solid rgba(108,99,255,0.3);border-radius:8px;padding:6px 10px;margin-bottom:8px}
-.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2s infinite}
+.sb-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);animation:pulse 2s infinite;display:inline-block;margin-right:7px;vertical-align:middle}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.logo-text{font-size:11px;font-weight:500;color:var(--accent2);letter-spacing:.06em;text-transform:uppercase}
-.sb-title{font-size:17px;font-weight:600}
-.sb-sub{font-size:12px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace}
-.sb-section{padding:16px 12px 8px}
-.sb-label{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:0 8px;margin-bottom:6px}
-.co-btn{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--rs);cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;text-align:left;transition:all .15s}
-.co-btn:hover{background:var(--surface2);color:var(--text)}
-.co-btn.active{background:var(--glow);color:var(--accent2);border:1px solid rgba(108,99,255,0.2)}
-.co-av{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
-.sb-footer{margin-top:auto;padding:16px 12px;border-top:1px solid var(--border)}
-.notify-badge{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--amber-bg);border:1px solid rgba(251,191,36,0.2);border-radius:var(--rs);font-size:11px;color:var(--amber)}
+.sb-title{font-size:15px;font-weight:600;margin-bottom:2px}
+.sb-sub{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.sb-section{padding:12px 8px 4px}
+.sb-label{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:0 8px;margin-bottom:4px}
 
-.main{display:flex;flex-direction:column;background:var(--bg)}
-.main-header{padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.main-header h2{font-size:18px;font-weight:500}
-.main-header p{font-size:13px;color:var(--text3);margin-top:2px}
-.header-actions{display:flex;gap:8px}
+/* 탭 전환 */
+.tab-row{display:flex;margin:12px 8px 4px;background:var(--surface2);border-radius:var(--rs);padding:3px;gap:2px}
+.tab-btn{flex:1;padding:6px 0;font-size:12px;font-weight:500;border:none;background:transparent;color:var(--text3);border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.tab-btn.active{background:var(--surface3);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.3)}
 
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);transition:all .15s;text-decoration:none}
+.nav-btn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--rs);cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;text-align:left;transition:all .15s}
+.nav-btn:hover{background:var(--surface2);color:var(--text)}
+.nav-btn.active{background:var(--glow);color:var(--accent2);border:1px solid rgba(108,99,255,.2)}
+.nav-av{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.sb-footer{margin-top:auto;padding:12px 8px;border-top:1px solid var(--border)}
+.notify-row{font-size:11px;color:var(--text3);padding:6px 8px;line-height:1.5}
+
+/* ── Main ── */
+.main{display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+.main-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.main-header h2{font-size:18px;font-weight:600}
+.main-header p{font-size:12px;color:var(--text3);margin-top:2px}
+.header-right{display:flex;gap:8px;align-items:center}
+
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);transition:all .15s;text-decoration:none}
 .btn:hover{background:var(--surface3);color:var(--text)}
 .btn-accent{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn-accent:hover{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.btn-sm{padding:4px 10px;font-size:11px}
 
-.chat-area{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:16px}
-.welcome-card{background:linear-gradient(135deg,var(--surface2),var(--surface3));border:1px solid var(--border2);border-radius:var(--r);padding:24px;text-align:center}
-.welcome-icon{width:48px;height:48px;background:var(--glow);border:1px solid rgba(108,99,255,0.3);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:22px}
-.welcome-card h3{font-size:16px;font-weight:500;margin-bottom:6px}
-.welcome-card p{font-size:13px;color:var(--text2);line-height:1.6}
-.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:16px}
-.chip{padding:5px 12px;border-radius:20px;font-size:12px;border:1px solid var(--border2);background:var(--surface3);color:var(--text2);cursor:pointer;transition:all .15s}
-.chip:hover{border-color:var(--accent);color:var(--accent2);background:var(--glow)}
+/* ── 번호 배너 ── */
+.num-banner{display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.num-item{flex:1;padding:12px 20px;border-right:1px solid var(--border)}
+.num-item:last-child{border-right:none}
+.num-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.num-value{font-size:14px;font-weight:500;font-family:'DM Mono',monospace;color:var(--text)}
+.num-value.loading{color:var(--text3);font-size:12px}
 
-.msg{display:flex;gap:10px;align-items:flex-start;animation:fadeUp .2s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* ── 대시보드 ── */
+.dashboard{flex:1;overflow-y:auto;padding:20px 24px}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:24px}
+.section-title{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+
+/* ── 서류 카드 ── */
+.doc-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s}
+.doc-tile:hover{border-color:var(--border2)}
+.tile-head{display:flex;align-items:center;justify-content:space-between}
+.tile-name{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px}
+.tile-icon{font-size:16px}
+.status-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.s-ok{background:var(--green-bg);color:var(--green)}
+.s-warn{background:var(--amber-bg);color:var(--amber)}
+.s-bad{background:var(--red-bg);color:var(--red)}
+.s-na{background:var(--surface3);color:var(--text3)}
+.tile-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.tile-action{display:flex;gap:6px}
+.tile-action .btn{flex:1;justify-content:center}
+
+/* ── 펀드 탭 ── */
+.fund-section{margin-bottom:20px}
+.fund-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.fund-title{font-size:13px;font-weight:500}
+.fund-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fund-link-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:border-color .15s}
+.fund-link-card:hover{border-color:var(--border2)}
+.fund-link-name{font-size:12px;font-weight:500}
+.fund-link-sub{font-size:11px;color:var(--text3);margin-top:1px}
+
+/* ── 챗봇 영역 ── */
+.chat-section{border-top:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.chat-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;cursor:pointer;user-select:none}
+.chat-toggle-label{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px}
+.chat-toggle-arrow{font-size:10px;color:var(--text3);transition:transform .2s}
+.chat-toggle-arrow.open{transform:rotate(180deg)}
+.chat-body{padding:0 24px 12px;display:none}
+.chat-body.open{display:block}
+.chat-history{max-height:220px;overflow-y:auto;margin-bottom:8px;display:flex;flex-direction:column;gap:8px}
+.msg{display:flex;gap:8px;align-items:flex-start;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .msg.user{flex-direction:row-reverse}
-.msg-av{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
-.msg-av.bot{background:var(--glow);color:var(--accent2);border:1px solid rgba(108,99,255,0.3)}
+.msg-av{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.msg-av.bot{background:var(--glow);color:var(--accent2);border:1px solid rgba(108,99,255,.3)}
 .msg-av.me{background:var(--surface3);color:var(--text2)}
-.msg-content{display:flex;flex-direction:column;gap:8px}
-.bubble{max-width:560px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:13px;line-height:1.6;color:var(--text)}
-.msg.user .bubble{background:var(--glow);border-color:rgba(108,99,255,0.2)}
+.bubble{max-width:480px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;font-size:12px;line-height:1.6;color:var(--text);white-space:pre-line}
+.msg.user .bubble{background:var(--glow);border-color:rgba(108,99,255,.2)}
+.chat-input-row{display:flex;gap:8px}
+.chat-input-row input{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text);outline:none}
+.chat-input-row input::placeholder{color:var(--text3)}
+.chat-input-row input:focus{border-color:rgba(108,99,255,.5)}
+.chat-hint{font-size:10px;color:var(--text3);margin-top:5px}
 
-.doc-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;max-width:460px}
-.card-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.card-head span{font-size:13px;font-weight:500}
-.tag{display:inline-flex;align-items:center;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
-.tag-green{background:var(--green-bg);color:var(--green)}
-.tag-amber{background:var(--amber-bg);color:var(--amber)}
-.tag-red{background:var(--red-bg);color:var(--red)}
-.card-body{padding:14px 16px}
-.meta-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.meta-row .lbl{font-size:11px;color:var(--text3)}
-.meta-row .val{font-size:12px;color:var(--text2);font-family:'DM Mono',monospace}
-.card-actions{display:flex;gap:8px;margin-top:12px}
-.card-actions .btn{flex:1;justify-content:center;font-size:12px}
-.rule-box{background:var(--surface3);border-radius:var(--rs);padding:10px 12px;margin-top:10px}
-.rule-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-.rule-val{font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;white-space:pre-line;line-height:1.7}
-.rule-hint{font-size:11px;color:var(--text3);margin-top:6px}
+/* ── 로그인 오버레이 ── */
+.login-overlay{position:fixed;inset:0;background:rgba(10,10,15,.95);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(8px)}
+.login-box{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:36px 40px;text-align:center;max-width:380px;width:90%}
+.login-logo{font-size:28px;margin-bottom:16px}
+.login-box h2{font-size:18px;font-weight:600;margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px}
+.login-note{font-size:11px;color:var(--text3);margin-top:14px;line-height:1.6}
 
-.fin-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:16px;max-width:420px}
-.fin-card h4{font-size:13px;font-weight:500;margin-bottom:12px}
-.period-toggle{display:inline-flex;border:1px solid var(--border2);border-radius:var(--rs);overflow:hidden;margin-bottom:12px}
-.period-toggle button{padding:6px 16px;font-size:12px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .12s}
-.period-toggle button.active{background:var(--accent);color:#fff}
-.period-sel{width:100%;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;margin-bottom:12px;appearance:none}
-.fin-actions{display:flex;gap:8px}
-.fin-actions .btn{flex:1;justify-content:center}
+/* ── Loading ── */
+.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;height:14px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-.typing{display:flex;gap:4px;align-items:center;padding:4px 0}
-.typing span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:bounce .8s infinite}
-.typing span:nth-child(2){animation-delay:.15s}
-.typing span:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,80%,100%{transform:scale(.7);opacity:.4}40%{transform:scale(1);opacity:1}}
+/* ── Toast ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 14px;font-size:12px;color:var(--text);display:none;z-index:200;animation:fadeUp .2s ease}
 
-.input-bar{padding:16px 28px 20px;border-top:1px solid var(--border);background:var(--surface)}
-.lb{height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;width:0%;transition:width .4s ease;margin-bottom:16px}
-.input-wrap{display:flex;gap:10px;align-items:flex-end;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:10px 12px;transition:border-color .15s}
-.input-wrap:focus-within{border-color:rgba(108,99,255,.5)}
-.input-wrap textarea{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;line-height:1.5;min-height:24px;max-height:120px}
-.input-wrap textarea::placeholder{color:var(--text3)}
-.send-btn{width:34px;height:34px;border-radius:8px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
-.send-btn:hover{background:var(--accent2)}
-.send-btn:disabled{background:var(--surface3);cursor:not-allowed}
-.send-btn svg{width:16px;height:16px;fill:white}
-.input-hint{font-size:11px;color:var(--text3);margin-top:8px;text-align:center}
-
-.toast{position:fixed;bottom:24px;right:24px;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 16px;font-size:13px;color:var(--text);display:none;z-index:999;animation:fadeUp .2s ease}
+/* ── 채팅 내 카드 ── */
+.chat-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 12px;margin-top:4px;max-width:380px}
+.chat-card .cc-head{font-size:11px;font-weight:500;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.chat-card .cc-row{font-size:11px;color:var(--text2);margin-bottom:4px;font-family:'DM Mono',monospace}
 </style>
 </head>
 <body>
+
+<!-- 로그인 오버레이 -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">📂</div>
+    <h2>SparkLabs 서류 포털</h2>
+    <p>사내 법인 서류 및 등록번호를<br>빠르게 조회하고 다운로드하세요.</p>
+    <button class="btn btn-accent" style="width:100%;justify-content:center;padding:10px" onclick="doLogin()">
+      🔐 Google 계정으로 로그인
+    </button>
+    <div class="login-note">@sparklabs.co.kr 계정으로 로그인해 주세요.<br>SparkLabs 공용 폴더만 조회하며 개인 Drive는 접근하지 않습니다.</div>
+  </div>
+</div>
+
 <div class="layout">
 
+<!-- ── Sidebar ── -->
 <aside class="sidebar">
   <div class="sb-logo">
-    <div class="logo-badge"><div class="logo-dot"></div><span class="logo-text">Drive 연동</span></div>
-    <div class="sb-title">SparkLabs 포털</div>
-    <div class="sb-sub">서류 다운로드 시스템</div>
+    <div><span class="logo-dot"></span><span style="font-size:11px;color:var(--accent2);font-weight:500;text-transform:uppercase;letter-spacing:.06em">Drive 연동</span></div>
+    <div class="sb-title" style="margin-top:6px">SparkLabs 포털</div>
+    <div class="sb-sub">서류 · 번호 조회 시스템</div>
   </div>
-  <div class="sb-section">
+
+  <!-- 탭 -->
+  <div class="tab-row">
+    <button class="tab-btn active" id="tab-corp" onclick="switchTab('corp')">법인</button>
+    <button class="tab-btn" id="tab-fund" onclick="switchTab('fund')">펀드</button>
+  </div>
+
+  <!-- 법인 목록 -->
+  <div id="corp-nav" class="sb-section">
     <div class="sb-label">법인 선택</div>
-    <button class="co-btn active" onclick="selectCompany(this,'스파크랩')">
-      <div class="co-av" style="background:rgba(248,113,113,.15);color:#f87171">SL</div>스파크랩
+    <button class="nav-btn active" id="nav-스파크랩" onclick="selectCorp(this,'스파크랩')">
+      <div class="nav-av" style="background:rgba(248,113,113,.15);color:#f87171">SL</div>스파크랩
     </button>
-    <button class="co-btn" onclick="selectCompany(this,'스파크랩파트너스')">
-      <div class="co-av" style="background:rgba(108,99,255,.15);color:#8b85ff">SP</div>스파크랩파트너스
+    <button class="nav-btn" id="nav-스파크랩파트너스" onclick="selectCorp(this,'스파크랩파트너스')">
+      <div class="nav-av" style="background:rgba(108,99,255,.15);color:#8b85ff">SP</div>스파크랩파트너스
     </button>
-    <button class="co-btn" onclick="selectCompany(this,'스파크랩벤처스')">
-      <div class="co-av" style="background:rgba(52,211,153,.15);color:#34d399">SV</div>스파크랩벤처스 (KF1)
+    <button class="nav-btn" id="nav-스파크랩벤처스" onclick="selectCorp(this,'스파크랩벤처스')">
+      <div class="nav-av" style="background:rgba(52,211,153,.15);color:#34d399">SV</div>스파크랩벤처스 (KF1)
     </button>
-    <button class="co-btn" onclick="selectCompany(this,'KF3')">
-      <div class="co-av" style="background:rgba(99,179,237,.15);color:#63b3ed">K3</div>KF3
-    </button>
-    <button class="co-btn" onclick="selectCompany(this,'스파크랩홀딩스')">
-      <div class="co-av" style="background:rgba(251,191,36,.15);color:#fbbf24">SH</div>스파크랩홀딩스
+    <button class="nav-btn" id="nav-스파크랩홀딩스" onclick="selectCorp(this,'스파크랩홀딩스')">
+      <div class="nav-av" style="background:rgba(251,191,36,.15);color:#fbbf24">SH</div>스파크랩홀딩스
     </button>
   </div>
-  <div class="sb-section">
-    <div class="sb-label">자주 찾는 서류</div>
-    <button class="co-btn" onclick="quickDoc('사업자등록증명')">📋 사업자등록증명</button>
-    <button class="co-btn" onclick="quickDoc('사업자등록증')">📄 사업자등록증</button>
-    <button class="co-btn" onclick="quickDoc('법인등기부등본')">🏢 법인등기부등본</button>
-    <button class="co-btn" onclick="quickDoc('재무제표')">📊 재무제표</button>
-    <button class="co-btn" onclick="submitText('펀드 재무제표')">🏦 펀드 재무제표</button>
-    <button class="co-btn" onclick="quickDoc('인감증명서')">🔏 인감증명서</button>
+
+  <!-- 펀드 목록 (숨김) -->
+  <div id="fund-nav" class="sb-section" style="display:none">
+    <div class="sb-label">펀드 카테고리</div>
+    <button class="nav-btn active" id="nav-fund-all" onclick="selectFundCat(this,'all')">
+      <div class="nav-av" style="background:rgba(99,179,237,.15);color:#63b3ed">전체</div>전체 펀드
+    </button>
+    <button class="nav-btn" id="nav-fund-pef" onclick="selectFundCat(this,'pef')">
+      <div class="nav-av" style="background:rgba(108,99,255,.15);color:#8b85ff">PEF</div>PEF펀드
+    </button>
+    <button class="nav-btn" id="nav-fund-prv" onclick="selectFundCat(this,'prv')">
+      <div class="nav-av" style="background:rgba(52,211,153,.15);color:#34d399">민간</div>민간펀드
+    </button>
+    <button class="nav-btn" id="nav-fund-vc" onclick="selectFundCat(this,'vc')">
+      <div class="nav-av" style="background:rgba(251,191,36,.15);color:#fbbf24">개투</div>개인투자조합
+    </button>
+    <button class="nav-btn" id="nav-fund-gov" onclick="selectFundCat(this,'gov')">
+      <div class="nav-av" style="background:rgba(248,113,113,.15);color:#f87171">모태</div>모태펀드
+    </button>
   </div>
+
   <div class="sb-footer">
-    <div class="notify-badge">
-      <span>📧</span>
-      <div>
-        <div style="font-weight:500;margin-bottom:1px">없는 서류 자동 알림</div>
-        <div style="color:rgba(251,191,36,.7)">gy.noh@sparklabs.co.kr</div>
-      </div>
-    </div>
+    <div class="notify-row">📧 없는 서류 요청<br><span style="color:var(--text2)">gy.noh@sparklabs.co.kr</span></div>
   </div>
 </aside>
 
+<!-- ── Main ── -->
 <main class="main">
+
+  <!-- 헤더 -->
   <div class="main-header">
     <div>
-      <h2 id="co-title">스파크랩</h2>
-      <p id="co-sub">Google Drive 서류 포털 · 최신본 자동 표시</p>
+      <h2 id="main-title">스파크랩</h2>
+      <p id="main-sub">법인 서류 대시보드</p>
     </div>
-    <div class="header-actions">
+    <div class="header-right">
+      <button class="btn" onclick="refreshDashboard()">↻ 새로고침</button>
       <button class="btn" onclick="copyLink()">🔗 링크 복사</button>
       <button class="btn btn-accent" onclick="shareJandi()">잔디 공유 ↗</button>
     </div>
   </div>
 
-  <div class="chat-area" id="chat">
-    <div class="welcome-card" id="welcome">
-      <div class="welcome-icon">📂</div>
-      <h3>서류를 요청하세요</h3>
-      <p>법인명과 서류 종류를 자유롭게 입력하세요.<br>
-      "파트너스 사업자", "벤처스 등기" 처럼 줄여서 말해도 됩니다.</p>
-      <div class="chips">
-        <span class="chip" onclick="submitText('스파크랩 사업자등록증')">스파크랩 사업자등록증</span>
-        <span class="chip" onclick="submitText('파트너스 사업자등록증명')">파트너스 사업자등록증명</span>
-        <span class="chip" onclick="submitText('벤처스 법인등기부등본')">벤처스 법인등기부등본</span>
-        <span class="chip" onclick="submitText('홀딩스 재무제표')">홀딩스 재무제표</span>
-        <span class="chip" onclick="submitText('KF3 재무제표')">🏦 KF3 재무제표</span>
-        <span class="chip" onclick="submitText('파트너스 인감증명서')">파트너스 인감증명서</span>
-      </div>
+  <!-- 번호 배너 -->
+  <div class="num-banner" id="num-banner">
+    <div class="num-item">
+      <div class="num-label">사업자등록번호</div>
+      <div class="num-value loading" id="num-biz">조회 중...</div>
+    </div>
+    <div class="num-item">
+      <div class="num-label">법인등록번호</div>
+      <div class="num-value loading" id="num-corp">조회 중...</div>
+    </div>
+    <div class="num-item" id="num-fund-wrap" style="display:none">
+      <div class="num-label">펀드등록번호</div>
+      <div class="num-value loading" id="num-fund">조회 중...</div>
     </div>
   </div>
 
-  <div class="input-bar">
-    <div class="lb" id="lb"></div>
-    <div class="input-wrap">
-      <textarea id="inp" rows="1"
-        placeholder="예: 스파크랩 사업자등록증 / KF3 재무제표..."
-        onkeydown="handleKey(event)"
-        oninput="autoResize(this)"></textarea>
-      <button class="send-btn" id="send-btn" onclick="send()">
-        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
-      </button>
-    </div>
-    <div class="input-hint">Google Drive 연동 · 최신본 자동 표시 · 없으면 노가영님께 자동 알림</div>
+  <!-- 대시보드 -->
+  <div class="dashboard" id="dashboard">
+    <div id="corp-dashboard"><!-- 법인 카드 렌더 --></div>
+    <div id="fund-dashboard" style="display:none"><!-- 펀드 렌더 --></div>
   </div>
+
+  <!-- 챗봇 (보조) -->
+  <div class="chat-section">
+    <div class="chat-toggle" onclick="toggleChat()">
+      <span class="chat-toggle-label">💬 특수 요청 · 예외 서류 검색</span>
+      <span class="chat-toggle-arrow" id="chat-arrow">▲</span>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="chat-history" id="chat-history"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-inp" placeholder="예: 벤처스 주주명부 / 디스커버리2 고유번호증 / 3호 재무제표..." onkeydown="if(event.key==='Enter')chatSend()">
+        <button class="btn btn-accent" onclick="chatSend()">전송</button>
+      </div>
+      <div class="chat-hint">자주 사용하는 서류는 위 대시보드에서 바로 클릭하세요.</div>
+    </div>
+  </div>
+
 </main>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ── 설정 ──────────────────────────────────────────────
+// ── 설정 ─────────────────────────────────────────────
 var CLIENT_ID    = '1024985574266-k9rdcv832k4kcka6o1v3m0td9jtvs9vv.apps.googleusercontent.com';
 var ROOT_ID      = '14Ip83Wp4aj2EW6At_B-M2NGFdFq1BE4s';
-var FUND_LINK    = 'https://drive.google.com/drive/folders/1UNybXPu14KD514PLFUdfLcoGVjNDMbFm';
+var FUND_ROOT_ID = '1UNybXPu14KD514PLFUdfLcoGVjNDMbFm';
 var NOTIFY_EMAIL = 'gy.noh@sparklabs.co.kr';
 var SHEET_ID     = '1NJ3Sj0C1bGaQSHkKgwsh_IWCDkto_vCg3NeZP3R9Eqk';
-console.log('[Portal] v15 로드됨');
+var DRIVE_PARAMS = '&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives';
+var INDEX_TTL    = 5 * 60 * 1000;
+console.log('[Portal] v2.0');
 
+// ── 법인 정의 ─────────────────────────────────────────
+var CORPS = [
+  { id:'스파크랩',        driveName:'스파크랩',        hasBranch:'부산' },
+  { id:'스파크랩파트너스', driveName:'스파크랩파트너스', hasBranch:'포항' },
+  { id:'스파크랩벤처스',  driveName:'스파크랩벤처스'  },
+  { id:'스파크랩홀딩스',  driveName:'스파크랩홀딩스'  },
+];
+
+// ── 펀드 카테고리 ─────────────────────────────────────
+var FUND_CATS = {
+  all: { label:'전체 펀드', folders:['PEF펀드','민간펀드','개인투자조합','모태펀드'] },
+  pef: { label:'PEF펀드',   folders:['PEF펀드'] },
+  prv: { label:'민간펀드',  folders:['민간펀드'] },
+  vc:  { label:'개인투자조합', folders:['개인투자조합'] },
+  gov: { label:'모태펀드',  folders:['모태펀드'] },
+};
+
+// ── alias (챗봇용) ────────────────────────────────────
 var COMPANY_MAP = {
-  '스파크랩파트너스':'스파크랩파트너스','파트너스':'스파크랩파트너스','partners':'스파크랩파트너스',
-  '스파크랩벤처스':'스파크랩벤처스','벤처스':'스파크랩벤처스','ventures':'스파크랩벤처스','KF1':'스파크랩벤처스','kf1':'스파크랩벤처스',
-  '스파크랩홀딩스':'스파크랩홀딩스','홀딩스':'스파크랩홀딩스','holdings':'스파크랩홀딩스',
+  '스파크랩파트너스':'스파크랩파트너스','파트너스':'스파크랩파트너스',
+  '스파크랩벤처스':'스파크랩벤처스','벤처스':'스파크랩벤처스','KF1':'스파크랩벤처스',
+  '스파크랩홀딩스':'스파크랩홀딩스','홀딩스':'스파크랩홀딩스',
   'KF3':'KF3','kf3':'KF3','3호':'KF3',
   '스파크랩':'스파크랩','sparklabs':'스파크랩'
 };
-
-// Drive 폴더명 매핑 (COMPANY_MAP 값 → 실제 Drive 폴더명)
-var FOLDER_NAME_MAP = {
-  'KF3': 'PEF펀드(KF3)',
-};
+var FOLDER_NAME_MAP = { 'KF3':'PEF펀드(KF3)' };
 
 var DOC_KEYS = [
   ['고유번호증','고유번호증'],
   ['사업자등록증명','사업자등록증명'],['사업자증명','사업자등록증명'],
   ['사업자등록증','사업자등록증'],['사업자','사업자등록증'],
-  ['법인등기부등본','법인등기부등본'],['법인등기','법인등기부등본'],['등기부','법인등기부등본'],['등본','법인등기부등본'],['등기','법인등기부등본'],
+  ['법인등기부등본','법인등기부등본'],['등기부','법인등기부등본'],['등본','법인등기부등본'],['등기','법인등기부등본'],
   ['재무제표','재무제표'],['재무','재무제표'],
-  ['인감증명서','인감증명서'],['인감증명','인감증명서'],['인감','인감증명서'],
+  ['인감증명서','인감증명서'],['인감','인감증명서'],
   ['정관','정관'],['주주명부','주주명부']
 ];
-
+var NUM_KEYS = [
+  ['사업자등록번호','사업자등록번호'],['법인등록번호','법인등록번호'],
+  ['펀드등록번호','펀드등록번호'],['사업자번호','사업자등록번호'],
+  ['법인번호','법인등록번호'],['등록번호','등록번호'],['고유번호','사업자등록번호'],
+];
 var FILE_RULES = {
-  '사업자등록증':   '사업자등록증_[법인명]_YYMMDD.pdf\n예) 사업자등록증_스파크랩_250101.pdf',
-  '사업자등록증명': '사업자등록증명_[법인명]_YYMMDD.pdf\n예) 사업자등록증명_스파크랩파트너스_250401.pdf',
-  '법인등기부등본': '법인등기부등본_[법인명]_YYMMDD.pdf\n예) 법인등기부등본_스파크랩홀딩스_250402.pdf',
-  '재무제표':       '재무제표_[법인명]_YYYYMM.pdf\n예) 재무제표_스파크랩벤처스_202503.pdf'
+  '사업자등록증':   '사업자등록증_[법인명]_YYMMDD.pdf',
+  '사업자등록증명': '사업자등록증명_[법인명]_YYMMDD.pdf',
+  '법인등기부등본': '법인등기부등본_[법인명]_YYMMDD.pdf',
+  '재무제표':       '재무제표_[법인명]_YYYYMM.pdf',
 };
 
-// ── 상태 ──────────────────────────────────────────────
+// ── 상태 ─────────────────────────────────────────────
 var token = null;
-var currentCompany = '스파크랩';
-var finMonths = ['2025년 5월','2025년 4월','2025년 3월','2025년 2월','2025년 1월','2024년 12월','2024년 11월'];
-var finQuarters = ['2025년 1분기','2024년 4분기','2024년 3분기','2024년 2분기'];
+var currentTab  = 'corp';
+var currentCorp = '스파크랩';
+var currentFundCat = 'all';
+var _folderIdMap  = null;
+var _fileIndexMap = {};
+var _fileIndexTime= {};
 
-// ── 초기화 ────────────────────────────────────────────
+// ── 초기화 ───────────────────────────────────────────
 window.onload = function() {
   var hash = location.hash;
   if (hash) {
@@ -262,168 +347,303 @@ window.onload = function() {
     if (t) {
       token = t;
       history.replaceState(null,'',location.pathname);
-      setInputEnabled(true);
-      addBotMsg('✅ Google 로그인 완료! 폴더를 스캔하는 중입니다...');
-      initFolderIds().then(function(map){
-        if (map) addBotMsg('📂 ' + Object.keys(map).length + '개 폴더 확인 완료. 서류를 요청해 주세요.');
-        else addBotMsg('⚠️ 폴더 스캔 실패. Drive 접근 권한을 확인해 주세요.');
-      });
+      document.getElementById('login-overlay').style.display = 'none';
+      init();
       return;
     }
   }
-  // 로그인 필요
-  setInputEnabled(false);
-  addLoginPrompt();
+  // 로그인 필요 → 오버레이 표시 (이미 HTML에 있음)
 };
 
-// ── 로그인 ────────────────────────────────────────────
 function doLogin() {
   var redirect = encodeURIComponent(location.origin + location.pathname);
   var scope = encodeURIComponent('https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets.readonly');
   location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + CLIENT_ID + '&redirect_uri=' + redirect + '&response_type=token&scope=' + scope;
 }
 
-function addLoginPrompt() {
-  var wrap = document.createElement('div');
-  wrap.className = 'msg';
-  wrap.innerHTML = '<div class="msg-av bot">AI</div><div class="msg-content"><div class="bubble">👋 SparkLabs 서류 포털입니다.<br>Google 계정으로 로그인하면 Drive에서 서류를 바로 찾아드립니다.</div><button class="btn btn-accent" style="width:fit-content" onclick="doLogin()">🔐 Google 계정으로 로그인</button></div>';
-  document.getElementById('chat').appendChild(wrap);
-  document.getElementById('welcome').style.display = 'none';
+async function init() {
+  await initFolderIds();
+  renderCorpDashboard(currentCorp);
+  loadNumbers(currentCorp);
 }
 
-// ── UI 유틸 ───────────────────────────────────────────
-function setInputEnabled(on) {
-  var inp = document.getElementById('inp');
-  var btn = document.getElementById('send-btn');
-  inp.disabled = !on;
-  btn.disabled = !on;
-  inp.placeholder = on ? '예: 스파크랩 사업자등록증 / KF3 재무제표...' : '로그인 후 서류를 요청하세요...';
+// ── 탭 전환 ──────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-corp').classList.toggle('active', tab==='corp');
+  document.getElementById('tab-fund').classList.toggle('active', tab==='fund');
+  document.getElementById('corp-nav').style.display  = tab==='corp' ? '' : 'none';
+  document.getElementById('fund-nav').style.display  = tab==='fund' ? '' : 'none';
+  document.getElementById('corp-dashboard').style.display = tab==='corp' ? '' : 'none';
+  document.getElementById('fund-dashboard').style.display = tab==='fund' ? '' : 'none';
+  document.getElementById('num-banner').style.display = tab==='corp' ? '' : 'none';
+  if (tab==='corp') {
+    document.getElementById('main-title').textContent = currentCorp;
+    document.getElementById('main-sub').textContent = '법인 서류 대시보드';
+  } else {
+    document.getElementById('main-title').textContent = '펀드';
+    document.getElementById('main-sub').textContent = '펀드 서류 · 고유번호증 · 재무제표';
+    renderFundDashboard(currentFundCat);
+  }
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
-
-function scrollBottom() {
-  var c = document.getElementById('chat');
-  c.scrollTop = c.scrollHeight;
-}
-
-function showToast(msg) {
-  var el = document.getElementById('toast');
-  el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(function(){ el.style.display='none'; }, 2500);
-}
-
-function submitText(text) {
-  if (!token) { showToast('먼저 Google 로그인이 필요합니다.'); return; }
-  document.getElementById('inp').value = text;
-  send();
-}
-
-function quickDoc(doc) {
-  submitText(currentCompany + ' ' + doc);
-}
-
-function selectCompany(el, name) {
-  document.querySelectorAll('.co-btn').forEach(function(b){ b.classList.remove('active'); });
+// ── 법인 선택 ─────────────────────────────────────────
+function selectCorp(el, name) {
+  document.querySelectorAll('#corp-nav .nav-btn').forEach(function(b){ b.classList.remove('active'); });
   el.classList.add('active');
-  currentCompany = name;
-  document.getElementById('co-title').textContent = name;
-  document.getElementById('co-sub').textContent = name + ' · Google Drive 서류 포털';
+  currentCorp = name;
+  document.getElementById('main-title').textContent = name;
+  document.getElementById('main-sub').textContent = '법인 서류 대시보드';
+  renderCorpDashboard(name);
+  loadNumbers(name);
 }
 
-function copyLink() {
-  navigator.clipboard.writeText(location.href);
-  showToast('링크가 복사되었습니다 🔗');
+// ── 펀드 카테고리 선택 ────────────────────────────────
+function selectFundCat(el, cat) {
+  document.querySelectorAll('#fund-nav .nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  currentFundCat = cat;
+  renderFundDashboard(cat);
 }
 
-function shareJandi() {
-  navigator.clipboard.writeText(location.href);
-  showToast('링크 복사 완료! 잔디에 붙여넣기 하세요.');
-}
+// ── 법인 대시보드 렌더 ────────────────────────────────
+async function renderCorpDashboard(corp) {
+  var container = document.getElementById('corp-dashboard');
+  container.innerHTML = '<div class="section-title">서류 현황</div><div class="doc-grid" id="doc-grid-loading">' +
+    [1,2,3,4,5].map(function(){ return '<div class="doc-tile"><div class="skeleton" style="width:60%;margin-bottom:8px"></div><div class="skeleton" style="width:40%"></div></div>'; }).join('') +
+    '</div>';
 
-// ── 메시지 ────────────────────────────────────────────
-function addUserMsg(text) {
-  var wrap = document.createElement('div');
-  wrap.className = 'msg user';
-  wrap.innerHTML = '<div class="msg-av me">나</div><div class="msg-content"><div class="bubble">' + text + '</div></div>';
-  document.getElementById('chat').appendChild(wrap);
-  scrollBottom();
-}
+  // 법인별 서류 정의
+  var docs = [
+    { type:'사업자등록증',   icon:'📄', label:'사업자등록증' },
+    { type:'사업자등록증명', icon:'📋', label:'사업자등록증명' },
+    { type:'법인등기부등본', icon:'🏢', label:'법인등기부등본', hasAge:true },
+    { type:'재무제표',       icon:'📊', label:'재무제표' },
+    { type:'인감증명서',     icon:'🔏', label:'인감증명서', manual:true },
+  ];
 
-function addBotMsg(text, cardEl) {
-  var wrap = document.createElement('div');
-  wrap.className = 'msg';
-  var av = document.createElement('div');
-  av.className = 'msg-av bot';
-  av.textContent = 'AI';
-  var content = document.createElement('div');
-  content.className = 'msg-content';
-  var bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.textContent = text;
-  content.appendChild(bubble);
-  if (cardEl) content.appendChild(cardEl);
-  wrap.appendChild(av);
-  wrap.appendChild(content);
-  document.getElementById('chat').appendChild(wrap);
-  scrollBottom();
-}
-
-function addTyping() {
-  var wrap = document.createElement('div');
-  wrap.className = 'msg';
-  wrap.id = 'typing';
-  wrap.innerHTML = '<div class="msg-av bot">AI</div><div class="msg-content"><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div></div>';
-  document.getElementById('chat').appendChild(wrap);
-  scrollBottom();
-}
-
-function removeTyping() {
-  var el = document.getElementById('typing');
-  if (el) el.remove();
-}
-
-function hideWelcome() {
-  var w = document.getElementById('welcome');
-  if (w) w.style.display = 'none';
-}
-
-// ── 파싱 ──────────────────────────────────────────────
-function parseReq(text) {
-  var company = currentCompany;
-  var docType = null;
-  var period = null;
-
-  var compKeys = Object.keys(COMPANY_MAP).sort(function(a,b){ return b.length - a.length; });
-  for (var i=0; i<compKeys.length; i++) {
-    if (text.indexOf(compKeys[i]) !== -1) { company = COMPANY_MAP[compKeys[i]]; break; }
+  // 지사 사업자등록증 추가
+  var corpDef = CORPS.find(function(c){ return c.id === corp; });
+  if (corpDef && corpDef.hasBranch) {
+    docs.splice(1, 0, { type:'사업자등록증', icon:'📄', label:'사업자등록증 ('+corpDef.hasBranch+')', branch:corpDef.hasBranch });
   }
 
-  if (/KF\d|디스커버리|펀드|fund/i.test(text) && /재무/.test(text)) {
-    docType = '펀드재무제표';
-  } else {
-    for (var j=0; j<DOC_KEYS.length; j++) {
-      if (text.indexOf(DOC_KEYS[j][0]) !== -1) { docType = DOC_KEYS[j][1]; break; }
+  // 병렬로 Drive 검색
+  var results = await Promise.all(docs.map(function(doc) {
+    if (doc.manual) return Promise.resolve(null);
+    return driveSearch(corp, doc.type, doc.branch || null);
+  }));
+
+  var grid = '<div class="section-title">서류 현황</div><div class="doc-grid">';
+  docs.forEach(function(doc, i) {
+    grid += renderDocTile(doc, results[i], corp);
+  });
+  grid += '</div>';
+  container.innerHTML = grid;
+}
+
+function renderDocTile(doc, result, corp) {
+  // 인감증명서
+  if (doc.manual) {
+    return '<div class="doc-tile">' +
+      '<div class="tile-head"><span class="tile-name"><span class="tile-icon">🔏</span>' + doc.label + '</span>' +
+      '<span class="status-badge s-na">직접 수령</span></div>' +
+      '<div class="tile-meta">3층 담당자에게 직접 요청</div>' +
+      '<div class="tile-action"><button class="btn btn-sm" style="flex:1;justify-content:center" onclick="showToast(\'3층에서 직접 수령해 주세요\')">안내 보기</button></div>' +
+      '</div>';
+  }
+
+  if (!result || result.noAccess) {
+    return '<div class="doc-tile">' +
+      '<div class="tile-head"><span class="tile-name"><span class="tile-icon">' + doc.icon + '</span>' + doc.label + '</span>' +
+      '<span class="status-badge s-na">권한 없음</span></div>' +
+      '<div class="tile-meta">@sparklabs.co.kr 계정 확인</div>' +
+      '</div>';
+  }
+
+  if (!result.found) {
+    var rule = FILE_RULES[doc.type] ? '파일명 규칙: ' + FILE_RULES[doc.type] : '';
+    return '<div class="doc-tile">' +
+      '<div class="tile-head"><span class="tile-name"><span class="tile-icon">' + doc.icon + '</span>' + doc.label + '</span>' +
+      '<span class="status-badge s-na">미등록</span></div>' +
+      '<div class="tile-meta">' + rule + '</div>' +
+      '<div class="tile-action">' +
+      '<button class="btn btn-sm" style="flex:1;justify-content:center" onclick="emailRequest(\'' + corp + '\',\'' + doc.label + '\')">📧 업로드 요청</button>' +
+      '</div></div>';
+  }
+
+  var f = result.file;
+  var date = new Date(f.modifiedTime);
+  var dateStr = date.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+
+  // 상태 계산
+  var statusHtml = '<span class="status-badge s-ok">✓ 최신</span>';
+  var metaExtra = '';
+  if (doc.hasAge) {
+    var ageDays = Math.floor((Date.now() - date.getTime()) / 86400000);
+    if (ageDays > 90)      statusHtml = '<span class="status-badge s-bad">갱신 필요 (' + ageDays + '일)</span>';
+    else if (ageDays > 60) statusHtml = '<span class="status-badge s-warn">갱신 권장 (' + ageDays + '일)</span>';
+    else                   statusHtml = '<span class="status-badge s-ok">최신 (' + ageDays + '일)</span>';
+  }
+
+  return '<div class="doc-tile">' +
+    '<div class="tile-head"><span class="tile-name"><span class="tile-icon">' + doc.icon + '</span>' + doc.label + '</span>' + statusHtml + '</div>' +
+    '<div class="tile-meta">' + dateStr + ' · ' + f.name + '</div>' +
+    '<div class="tile-action">' +
+    '<a class="btn btn-sm btn-accent" href="' + f.viewLink + '" target="_blank" style="flex:1;justify-content:center">📂 열기 · 다운로드</a>' +
+    '</div></div>';
+}
+
+// ── 펀드 대시보드 렌더 ────────────────────────────────
+async function renderFundDashboard(cat) {
+  var container = document.getElementById('fund-dashboard');
+  var catDef = FUND_CATS[cat];
+  container.innerHTML = '<div class="section-title">' + catDef.label + '</div>' +
+    '<div style="color:var(--text3);font-size:13px;margin-bottom:12px">펀드별 고유번호증 및 재무제표를 Drive에서 직접 확인하세요.</div>' +
+    '<div class="fund-grid" id="fund-grid"><div style="color:var(--text3);font-size:12px">폴더 로딩 중...</div></div>';
+
+  var h = { 'Authorization': 'Bearer ' + token };
+  await initFolderIds();
+
+  // 카테고리에 해당하는 루트 폴더 찾기
+  var matchedCats = Object.keys(_folderIdMap || {}).filter(function(k){
+    return catDef.folders.some(function(f){ return k.indexOf(f) !== -1; });
+  });
+
+  if (!matchedCats.length) {
+    document.getElementById('fund-grid').innerHTML = '<div style="color:var(--text3);font-size:12px">해당 카테고리 폴더를 찾지 못했습니다.</div>';
+    return;
+  }
+
+  // 각 카테고리 폴더 하위 펀드 폴더 목록
+  var allFundFolders = [];
+  for (var i=0; i<matchedCats.length; i++) {
+    var catId = _folderIdMap[matchedCats[i]];
+    var q = "'" + catId + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
+    var r = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) + '&fields=files(id,name)&pageSize=100' + DRIVE_PARAMS, { headers: h });
+    if (r.status !== 200) continue;
+    var d = await r.json();
+    (d.files || []).forEach(function(f){ f._cat = matchedCats[i]; allFundFolders.push(f); });
+  }
+
+  if (!allFundFolders.length) {
+    document.getElementById('fund-grid').innerHTML = '<div style="color:var(--text3);font-size:12px">등록된 펀드 폴더가 없습니다.</div>';
+    return;
+  }
+
+  var grid = allFundFolders.map(function(folder) {
+    var link = 'https://drive.google.com/drive/folders/' + folder.id;
+    return '<a class="fund-link-card" href="' + link + '" target="_blank" style="text-decoration:none;color:inherit">' +
+      '<div><div class="fund-link-name">' + folder.name + '</div>' +
+      '<div class="fund-link-sub">' + folder._cat + '</div></div>' +
+      '<span style="color:var(--text3);font-size:12px">↗</span>' +
+      '</a>';
+  }).join('');
+
+  document.getElementById('fund-grid').innerHTML = grid;
+}
+
+// ── 번호 로드 (Sheets) ────────────────────────────────
+async function loadNumbers(corp) {
+  document.getElementById('num-biz').textContent  = '조회 중...';
+  document.getElementById('num-biz').className    = 'num-value loading';
+  document.getElementById('num-corp').textContent = '조회 중...';
+  document.getElementById('num-corp').className   = 'num-value loading';
+  document.getElementById('num-fund-wrap').style.display = 'none';
+
+  var range = encodeURIComponent('시트1!A:F');
+  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID + '/values/' + range;
+  var res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
+  if (res.status !== 200) {
+    document.getElementById('num-biz').textContent  = '—';
+    document.getElementById('num-corp').textContent = '—';
+    document.getElementById('num-biz').className    = 'num-value';
+    document.getElementById('num-corp').className   = 'num-value';
+    return;
+  }
+  var data = await res.json();
+  var rows = data.values || [];
+  if (!rows.length) return;
+
+  var header = rows[0].map(function(h){ return h.trim(); });
+  var ci = header.indexOf('법인명');
+  var bi = header.indexOf('구분');
+  var bizI  = header.indexOf('사업자등록번호');
+  var corpI = header.indexOf('법인등록번호');
+  var fundI = header.indexOf('펀드등록번호');
+
+  var norm = function(s){ return (s||'').replace(/\s/g,'').toLowerCase(); };
+  var normCorp = norm(corp);
+
+  var matched = rows.slice(1).filter(function(row){
+    var rowCo = norm(row[ci]||'');
+    var rowBr = (row[bi]||'').trim();
+    return rowCo === normCorp && (rowBr === '본사' || rowBr === '-' || rowBr === '');
+  });
+  if (!matched.length) matched = rows.slice(1).filter(function(row){ return norm(row[ci]||'') === normCorp; });
+
+  var row = matched[0] || [];
+  var biz  = bizI  >= 0 ? (row[bizI]  || '—') : '—';
+  var corp2= corpI >= 0 ? (row[corpI] || '—') : '—';
+  var fund = fundI >= 0 ? (row[fundI] || '')   : '';
+
+  document.getElementById('num-biz').textContent  = biz;
+  document.getElementById('num-biz').className    = 'num-value';
+  document.getElementById('num-corp').textContent = corp2;
+  document.getElementById('num-corp').className   = 'num-value';
+  if (fund) {
+    document.getElementById('num-fund-wrap').style.display = '';
+    document.getElementById('num-fund').textContent = fund;
+    document.getElementById('num-fund').className = 'num-value';
+  }
+}
+
+// ── Drive 폴더 ID 초기화 ─────────────────────────────
+async function initFolderIds() {
+  if (_folderIdMap) return _folderIdMap;
+  var h = { 'Authorization': 'Bearer ' + token };
+  var q = "'" + ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
+  var r = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) + '&fields=files(id,name)&pageSize=100' + DRIVE_PARAMS, { headers: h });
+  if (r.status !== 200) return null;
+  var d = await r.json();
+  _folderIdMap = {};
+  (d.files || []).forEach(function(f){ _folderIdMap[f.name] = f.id; });
+  console.log('[Drive] 폴더 확인:', Object.keys(_folderIdMap));
+  return _folderIdMap;
+}
+
+function getFolderId(corp) {
+  if (!_folderIdMap) return null;
+  var driveName = FOLDER_NAME_MAP[corp] || corp;
+  var key = Object.keys(_folderIdMap).find(function(k){ return k === driveName; })
+         || Object.keys(_folderIdMap).find(function(k){ return k.indexOf(driveName) !== -1; })
+         || Object.keys(_folderIdMap).find(function(k){ return driveName.indexOf(k) !== -1; });
+  return key ? { id:_folderIdMap[key], name:key } : null;
+}
+
+// ── 재귀 파일 인덱싱 (TTL 캐시) ──────────────────────
+async function listAllFiles(folderId, h) {
+  var now = Date.now();
+  if (_fileIndexMap[folderId] && (now - (_fileIndexTime[folderId]||0)) < INDEX_TTL) return _fileIndexMap[folderId];
+  var all = [];
+  async function walk(id) {
+    var q = "'" + id + "' in parents and trashed=false";
+    var r = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) + '&fields=files(id,name,mimeType,modifiedTime,webViewLink)&pageSize=1000' + DRIVE_PARAMS, { headers: h });
+    if (r.status !== 200) return;
+    var d = await r.json();
+    for (var i=0; i<(d.files||[]).length; i++) {
+      var f = d.files[i];
+      if (f.mimeType === 'application/vnd.google-apps.folder') await walk(f.id);
+      else all.push(f);
     }
   }
-
-  var qm = text.match(/(\d{4})[년\s]*(\d)[분기]/);
-  var mm = text.match(/(\d{4})[년\s]*(\d{1,2})월/);
-  if (qm) period = { type:'quarter', year:qm[1], q:qm[2] };
-  else if (mm) period = { type:'month', year:mm[1], month:mm[2] };
-
-  return { company:company, docType:docType, period:period };
+  await walk(folderId);
+  _fileIndexMap[folderId] = all;
+  _fileIndexTime[folderId] = Date.now();
+  return all;
 }
 
-// ── Drive 설정 ────────────────────────────────────────
+// ── Drive 검색 ────────────────────────────────────────
 var DOC_PATTERNS = {
   '사업자등록증':   ['사업자등록증'],
   '사업자등록증명': ['사업자등록증명'],
@@ -434,72 +654,11 @@ var DOC_PATTERNS = {
   '주주명부':       ['주주명부'],
 };
 
-var DRIVE_PARAMS = '&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives';
-
-// ── 폴더 ID 캐시 (로그인 후 1회 스캔) ────────────────
-var _folderIdMap   = null;  // { '스파크랩': 'id', ... }
-var _fileIndexMap  = null;  // { 'folderId': [files...], ... }
-
-// 루트 하위 폴더를 1회 스캔해서 ID 고정
-async function initFolderIds() {
-  if (_folderIdMap) return _folderIdMap;
-  var h = { 'Authorization': 'Bearer ' + token };
-  var q = "'" + ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
-  var r = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) +
-    '&fields=files(id,name)&pageSize=100' + DRIVE_PARAMS, { headers: h });
-  if (r.status === 401 || r.status === 403) return null;
-  var d = await r.json();
-  if (d.error || !d.files) return null;
-  _folderIdMap = {};
-  d.files.forEach(function(f) { _folderIdMap[f.name] = f.id; });
-  console.log('[Drive] 폴더 ID 확정:', Object.keys(_folderIdMap));
-  return _folderIdMap;
-}
-
-// 회사명 → 실제 폴더 ID
-function getFolderId(company) {
-  if (!_folderIdMap) return null;
-  var driveName = FOLDER_NAME_MAP[company] || company;
-  // exact → contains → reverse contains
-  var key = Object.keys(_folderIdMap).find(function(k){ return k === driveName; })
-         || Object.keys(_folderIdMap).find(function(k){ return k.indexOf(driveName) !== -1; })
-         || Object.keys(_folderIdMap).find(function(k){ return driveName.indexOf(k) !== -1; });
-  return key ? { id: _folderIdMap[key], name: key } : null;
-}
-
-// ── 재귀 파일 인덱싱 ──────────────────────────────────
-async function listAllFiles(folderId, h) {
-  if (_fileIndexMap && _fileIndexMap[folderId]) return _fileIndexMap[folderId];
-  var all = [];
-  async function walk(id) {
-    var q = "'" + id + "' in parents and trashed=false";
-    var url = 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) +
-      '&fields=files(id,name,mimeType,modifiedTime,webViewLink)&pageSize=1000' + DRIVE_PARAMS;
-    var res = await fetch(url, { headers: h });
-    if (res.status !== 200) return;
-    var data = await res.json();
-    for (var i = 0; i < (data.files || []).length; i++) {
-      var f = data.files[i];
-      if (f.mimeType === 'application/vnd.google-apps.folder') {
-        await walk(f.id);
-      } else {
-        all.push(f);
-      }
-    }
-  }
-  await walk(folderId);
-  if (!_fileIndexMap) _fileIndexMap = {};
-  _fileIndexMap[folderId] = all;
-  console.log('[Drive] 인덱싱 완료 (' + folderId + '):', all.length + '개 파일');
-  return all;
-}
-
-// ── Drive 검색 ────────────────────────────────────────
-async function driveSearch(company, docType, period) {
+async function driveSearch(corp, docType, branch) {
   var h = { 'Authorization': 'Bearer ' + token };
   await initFolderIds();
-  var folderInfo = getFolderId(company);
-  if (!folderInfo) return { found: false, folderName: company };
+  var folderInfo = getFolderId(corp);
+  if (!folderInfo) return { found:false, folderName:corp };
 
   var files = await listAllFiles(folderInfo.id, h);
   var patterns = DOC_PATTERNS[docType] || [docType];
@@ -508,382 +667,230 @@ async function driveSearch(company, docType, period) {
     var name = f.name;
     var hit = patterns.some(function(p){ return name.indexOf(p) !== -1; });
     if (!hit) return false;
-    if (docType === '사업자등록증') return name.indexOf('사업자등록증명') === -1;
+    if (docType === '사업자등록증' && name.indexOf('사업자등록증명') !== -1) return false;
+    if (branch && name.indexOf(branch) === -1) return false;
     return true;
   });
 
-  console.log('[Drive] 매칭 결과 (' + company + '/' + docType + '):', matched.map(function(f){ return f.name; }));
-  if (!matched.length) return { found: false, folderName: folderInfo.name };
-
+  if (!matched.length) return { found:false, folderName:folderInfo.name };
   matched.sort(function(a,b){ return new Date(b.modifiedTime) - new Date(a.modifiedTime); });
   var f = matched[0];
-  return {
-    found: true, folderName: folderInfo.name,
-    file: { name: f.name, modifiedTime: f.modifiedTime, viewLink: f.webViewLink,
-            downloadLink: 'https://drive.google.com/file/d/' + f.id + '/view' }
-  };
+  return { found:true, folderName:folderInfo.name,
+    file:{ name:f.name, modifiedTime:f.modifiedTime, viewLink:f.webViewLink } };
 }
 
-// ── 카드 생성 ─────────────────────────────────────────
-function makeCard(result, parsed) {
-  var card = document.createElement('div');
-  card.className = 'doc-card';
+// ── 챗봇 ─────────────────────────────────────────────
+var chatOpen = false;
 
-  if (result && result.noAccess) {
-    card.innerHTML = '<div class="card-head"><span>📄 ' + parsed.docType + '</span><span class="tag tag-amber">접근 권한 없음</span></div><div class="card-body"><div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px"><span style="font-size:20px">🔒</span><div><div style="font-size:13px;font-weight:500;margin-bottom:4px">이 서류에 대한 접근 권한이 없습니다</div><div style="font-size:12px;color:var(--text2)">관리자에게 Drive 폴더 접근 권한을 요청하세요.</div></div></div><button class="btn" onclick="emailAccess(\'' + parsed.company + '\',\'' + parsed.docType + '\')">📧 권한 요청 이메일</button></div>';
-    return card;
-  }
-
-  if (parsed.docType === '인감증명서') {
-    card.innerHTML = '<div class="card-head"><span>🔏 인감증명서</span><span class="tag tag-amber">직접 수령</span></div><div class="card-body"><div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px">🏢</span><div><div style="font-size:13px;font-weight:500;margin-bottom:4px">3층에서 직접 수령해 주세요</div><div style="font-size:12px;color:var(--text2);line-height:1.6">인감증명서는 보안상 디지털 배포가 어렵습니다.<br>필요 시 3층 담당자에게 직접 요청하세요.</div></div></div></div>';
-    return card;
-  }
-
-  if (result && result.found) {
-    var date = new Date(result.file.modifiedTime).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
-    card.innerHTML = '<div class="card-head"><span>📄 ' + parsed.docType + '</span><span class="tag tag-green">✓ 최신본</span></div><div class="card-body"><div class="meta-row"><span class="lbl">법인</span><span class="val">' + result.folderName + '</span></div><div class="meta-row"><span class="lbl">파일명</span><span class="val" style="font-size:11px">' + result.file.name + '</span></div><div class="meta-row"><span class="lbl">갱신일</span><span class="val">' + date + '</span></div><div class="card-actions"><a class="btn btn-accent" href="' + result.file.viewLink + '" target="_blank" style="flex:none">📂 Drive에서 열기 · 다운로드</a></div></div>';
-    return card;
-  }
-
-  var rule = FILE_RULES[parsed.docType] || '';
-  var ruleHtml = rule ? '<div class="rule-box"><div class="rule-lbl">📌 Drive 파일명 규칙</div><div class="rule-val">' + rule + '</div><div class="rule-hint">이 규칙대로 파일명을 맞춰 업로드하면 자동으로 인식됩니다.</div></div>' : '';
-  card.innerHTML = '<div class="card-head"><span>📄 ' + (parsed.docType||'서류') + '</span><span class="tag tag-red">미발견</span></div><div class="card-body"><div style="font-size:13px;margin-bottom:4px">Drive에서 파일을 찾지 못했습니다.</div><div style="font-size:12px;color:var(--text2);margin-bottom:8px">파일명이 규칙과 다르거나 아직 업로드되지 않았을 수 있습니다.</div>' + ruleHtml + '<button class="btn" style="margin-top:12px" onclick="emailRequest(\'' + parsed.company + '\',\'' + (parsed.docType||'') + '\')">📧 업로드 요청 이메일</button></div>';
-  return card;
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('chat-body').className = 'chat-body' + (chatOpen ? ' open' : '');
+  document.getElementById('chat-arrow').className = 'chat-toggle-arrow' + (chatOpen ? ' open' : '');
 }
 
-function makeFundCard(userText) {
-  var card = document.createElement('div');
-  card.className = 'doc-card';
-  card.innerHTML = '<div class="card-head"><span>🏦 펀드 재무제표</span><span class="tag tag-green">Drive 연결</span></div><div class="card-body"><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px">펀드별 폴더로 정리되어 있습니다.<br>없는 파일은 아래 버튼으로 업데이트 요청하세요.</div><div style="display:flex;gap:8px"><a class="btn btn-accent" href="' + FUND_LINK + '" target="_blank">📂 Drive 폴더 열기</a><button class="btn" id="fund-req-btn" onclick="emailFundUpdate(this,\'' + userText.replace(/'/g,"\\'") + '\')">📧 업데이트 요청</button></div></div>';
-  return card;
+function extractFundName(text) {
+  var patterns = [/디스커버리\s*\d+호?/i, /디스커버리\s*[A-Za-z]+\d*/i, /KF\s*\d+/i, /[A-Za-z가-힣]+\s*\d+호?/i];
+  for (var i=0; i<patterns.length; i++) { var m=text.match(patterns[i]); if(m) return m[0].replace(/\s+/g,'').trim(); }
+  return null;
 }
-
-// ── 번호 키워드 감지 ──────────────────────────────────
-var NUM_KEYS = [
-  ['사업자등록번호', '사업자등록번호'],
-  ['법인등록번호',   '법인등록번호'],
-  ['펀드등록번호',   '펀드등록번호'],
-  ['고유번호',       '사업자등록번호'],  // 펀드 고유번호 = 사업자등록번호
-  ['사업자번호',     '사업자등록번호'],
-  ['법인번호',       '법인등록번호'],
-  ['펀드번호',       '펀드등록번호'],
-  ['등록번호',       '등록번호'],
-];
-
-// 펀드 유형 상위폴더명
-var FUND_CATEGORY_FOLDERS = ['개인투자조합', '모태펀드', '민간펀드'];
-
-// 펀드 요청 여부 판별 — 펀드 카테고리명 또는 알려진 펀드명 패턴
-function isFundRequest(text) {
-  return /KF\d|디스커버리|펀드|fund|조합/i.test(text);
-}
-
+function isFundRequest(text) { return /KF\d|디스커버리|펀드|fund|조합|\d+호/i.test(text); }
 function parseNumType(text) {
-  for (var i=0; i<NUM_KEYS.length; i++) {
-    if (text.indexOf(NUM_KEYS[i][0]) !== -1) return NUM_KEYS[i][1];
-  }
+  if (text.indexOf('고유번호증') !== -1) return null;
+  for (var i=0; i<NUM_KEYS.length; i++) { if (text.indexOf(NUM_KEYS[i][0])!==-1) return NUM_KEYS[i][1]; }
   return null;
 }
-
-// 지사 감지
 function parseBranch(text) {
-  if (text.indexOf('부산') !== -1) return '부산';
-  if (text.indexOf('포항') !== -1) return '포항';
+  if (text.indexOf('부산')!==-1) return '부산';
+  if (text.indexOf('포항')!==-1) return '포항';
   return null;
 }
-
-// ── 펀드 고유번호증 Drive 탐색 ────────────────────────
-// 구조: ROOT > [개인투자조합|모태펀드|민간펀드] > (펀드폴더) > 고유번호증_펀드명.pdf
-async function searchFundDoc(fundKeyword, docKeyword) {
-  var h = { 'Authorization': 'Bearer ' + token };
-  await initFolderIds();
-
-  // 카테고리 폴더 ID 확인
-  var catIds = FUND_CATEGORY_FOLDERS.map(function(cat){
-    var key = Object.keys(_folderIdMap || {}).find(function(k){ return k.indexOf(cat) !== -1; });
-    return key ? { id: _folderIdMap[key], name: key } : null;
-  }).filter(Boolean);
-
-  console.log('[Drive] 펀드 카테고리 폴더:', catIds.map(function(f){ return f.name; }));
-  if (!catIds.length) return { found: false };
-
-  // 각 카테고리 폴더 재귀 인덱싱
-  var allFiles = [];
-  for (var i = 0; i < catIds.length; i++) {
-    var files = await listAllFiles(catIds[i].id, h);
-    files.forEach(function(f){ f._catFolder = catIds[i].name; });
-    allFiles = allFiles.concat(files);
+function parseReq(text) {
+  var company = currentCorp; var docType = null;
+  var fundName = extractFundName(text);
+  if (fundName) {
+    company = COMPANY_MAP[fundName] || COMPANY_MAP[fundName.toUpperCase()] || fundName;
+  } else {
+    var ck = Object.keys(COMPANY_MAP).sort(function(a,b){return b.length-a.length;});
+    for (var i=0;i<ck.length;i++) { if (text.indexOf(ck[i])!==-1){company=COMPANY_MAP[ck[i]];break;} }
   }
-
-  // 서류명 필터
-  var matched = allFiles.filter(function(f){ return f.name.indexOf(docKeyword) !== -1; });
-
-  // 펀드명 키워드 필터 (있을 때만)
-  if (fundKeyword) {
-    var byFund = matched.filter(function(f){ return f.name.indexOf(fundKeyword) !== -1; });
-    if (byFund.length) matched = byFund;
-  }
-
-  console.log('[Drive] 펀드 문서 결과:', matched.map(function(f){ return f.name; }));
-  if (!matched.length) return { found: false };
-
-  matched.sort(function(a,b){ return new Date(b.modifiedTime) - new Date(a.modifiedTime); });
-  var f = matched[0];
-  return { found: true, fundName: f._catFolder || f.name, file: { name: f.name, modifiedTime: f.modifiedTime, viewLink: f.webViewLink } };
+  if (/재무제표|재무자료/i.test(text) && isFundRequest(text)) { docType='펀드재무제표'; }
+  else { for (var j=0;j<DOC_KEYS.length;j++) { if (text.indexOf(DOC_KEYS[j][0])!==-1){docType=DOC_KEYS[j][1];break;} } }
+  return { company:company, docType:docType, fundName:fundName };
 }
 
-// ── Sheets API: 번호 조회 ─────────────────────────────
-async function fetchNumber(company, numType, branch) {
-  var range = encodeURIComponent('시트1!A:F');
-  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID + '/values/' + range;
-  console.log('[Sheets] 요청 URL:', url);
-  var res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
-  console.log('[Sheets] 응답 상태:', res.status);
-  if (res.status === 401 || res.status === 403) return { noAccess: true };
-  var data = await res.json();
-  console.log('[Sheets] 응답 데이터:', data);
-  if (data.error) return { error: true };
-
-  var rows = data.values || [];
-  if (!rows.length) return { notFound: true };
-
-  // 헤더 파악: 법인명, 구분, 사업자등록번호, 법인등록번호, 펀드등록번호
-  var header = rows[0].map(function(h){ return h.trim(); });
-  var colCompany = header.indexOf('법인명');
-  var colBranch  = header.indexOf('구분');
-  var colBiz     = header.indexOf('사업자등록번호');
-  var colCorp    = header.indexOf('법인등록번호');
-  var colFund    = header.indexOf('펀드등록번호');
-  var colUniq    = header.indexOf('고유번호');
-
-  // 드라이브 폴더명 → 시트의 법인명 역매핑
-  var sheetName = company;
-  if (company === 'KF3') sheetName = 'KF3';
-
-  // 행 탐색
-  var matched = rows.slice(1).filter(function(row) {
-    var rowCompany = (row[colCompany] || '').trim();
-    var rowBranch  = (row[colBranch]  || '').trim();
-    var companyMatch = rowCompany === sheetName
-                    || rowCompany.indexOf(sheetName) !== -1
-                    || sheetName.indexOf(rowCompany) !== -1;
-    if (!companyMatch) return false;
-    // 지사 필터
-    if (branch) return rowBranch.indexOf(branch) !== -1;
-    // 지사 미지정 시 본사 우선
-    return rowBranch === '본사' || rowBranch === '-' || rowBranch === '' || !branch;
-  });
-
-  if (!matched.length) return { notFound: true };
-  var row = matched[0];
-
-  // 요청 번호 타입에 맞게 반환
-  var result = {
-    company: row[colCompany] || company,
-    branch:  row[colBranch]  || '',
-    biz:     colBiz  >= 0 ? (row[colBiz]  || '') : '',
-    corp:    colCorp >= 0 ? (row[colCorp] || '') : '',
-    fund:    colFund >= 0 ? (row[colFund] || '') : '',
-    uniq:    colUniq >= 0 ? (row[colUniq] || '') : '',
-  };
-
-  if (numType === '사업자등록번호') return Object.assign({ found: !!result.biz, value: result.biz }, result);
-  if (numType === '법인등록번호')   return Object.assign({ found: !!result.corp, value: result.corp }, result);
-  if (numType === '펀드등록번호')   return Object.assign({ found: !!result.fund, value: result.fund }, result);
-  return Object.assign({ found: true, value: null }, result);
-}
-
-// ── 번호 카드 ─────────────────────────────────────────
-function makeNumCard(numResult, numType, company, branch) {
-  var card = document.createElement('div');
-  card.className = 'doc-card';
-
-  if (numResult.noAccess) {
-    card.innerHTML = '<div class="card-head"><span>🔢 등록번호</span><span class="tag tag-amber">접근 권한 없음</span></div><div class="card-body"><div style="font-size:13px">스프레드시트 접근 권한이 없습니다.<br>관리자에게 문의하세요.</div></div>';
-    return card;
-  }
-  if (numResult.notFound || numResult.error) {
-    card.innerHTML = '<div class="card-head"><span>🔢 등록번호</span><span class="tag tag-red">미등록</span></div><div class="card-body"><div style="font-size:13px;margin-bottom:8px">스프레드시트에 해당 항목이 없습니다.</div><button class="btn" onclick="emailRequest(\'' + company + '\',\'' + numType + '\')">📧 등록 요청 이메일</button></div>';
-    return card;
-  }
-
-  var label = numResult.company + (numResult.branch && numResult.branch !== '본사' && numResult.branch !== '-' ? ' ' + numResult.branch : '');
-  var rows = '';
-  if (numResult.biz)  rows += '<div class="meta-row"><span class="lbl">사업자등록번호</span><span class="val" style="font-size:13px;font-weight:500;color:var(--text)">' + numResult.biz  + '</span></div>';
-  if (numResult.corp) rows += '<div class="meta-row"><span class="lbl">법인등록번호</span><span class="val" style="font-size:13px;font-weight:500;color:var(--text)">'   + numResult.corp + '</span></div>';
-  if (numResult.fund) rows += '<div class="meta-row"><span class="lbl">펀드등록번호</span><span class="val" style="font-size:13px;font-weight:500;color:var(--text)">'   + numResult.fund + '</span></div>';
-
-  // 특정 번호 요청인데 값이 없으면
-  if (numType !== '등록번호' && !numResult.value) {
-    rows += '<div style="font-size:12px;color:var(--text3);margin-top:4px">' + numType + '이 등록되어 있지 않습니다.</div>';
-  }
-
-  card.innerHTML = '<div class="card-head"><span>🔢 ' + label + '</span><span class="tag tag-green">조회 완료</span></div><div class="card-body">' + rows + '</div>';
-  return card;
-}
-async function findFinFolder(company) {
-  var h = { 'Authorization': 'Bearer ' + token };
-  await initFolderIds();
-  var folderInfo = getFolderId(company);
-  if (!folderInfo) return { found: false };
-
-  // 법인폴더 직속 서브폴더 중 재무 관련 폴더 탐색
-  var q = "'" + folderInfo.id + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
-  var r = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) +
-    '&fields=files(id,name)&pageSize=50' + DRIVE_PARAMS, { headers: h });
-  if (r.status === 401 || r.status === 403) return { noAccess: true };
-  var d = await r.json();
-  if (d.error) return { noAccess: true };
-
-  var finFolder = (d.files || []).find(function(f){ return f.name.indexOf('재무') !== -1; });
-  if (!finFolder) return { found: false };
-  return { found: true, folderLink: 'https://drive.google.com/drive/folders/' + finFolder.id };
-}
-
-// ── 폴더 링크 카드 ────────────────────────────────────
-function makeFolderCard(company, folderLink) {
-  var card = document.createElement('div');
-  card.className = 'doc-card';
-  card.innerHTML = '<div class="card-head"><span>📊 ' + company + ' 재무제표</span><span class="tag tag-green">Drive 연결</span></div><div class="card-body"><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px">폴더에서 원하는 기간의 파일을 직접 선택해 다운로드하세요.</div><a class="btn btn-accent" href="' + folderLink + '" target="_blank">📂 재무제표 폴더 열기</a></div>';
-  return card;
-}
-
-// ── 이메일 ────────────────────────────────────────────
-function emailRequest(company, doc) {
-  var today = new Date().toLocaleDateString('ko-KR');
-  var sub = encodeURIComponent('[서류 요청] ' + company + ' ' + doc);
-  var body = encodeURIComponent('안녕하세요, 노가영님.\n\n다음 서류가 Drive에 없어 요청드립니다.\n\n• 법인: ' + company + '\n• 서류: ' + doc + '\n• 요청일: ' + today + '\n\nDrive에 업로드해 주시면 감사합니다.');
-  window.open('mailto:' + NOTIFY_EMAIL + '?subject=' + sub + '&body=' + body);
-}
-
-function emailAccess(company, doc) {
-  var today = new Date().toLocaleDateString('ko-KR');
-  var sub = encodeURIComponent('[Drive 접근 권한 요청] ' + company + ' ' + doc);
-  var body = encodeURIComponent('안녕하세요, 노가영님.\n\n아래 서류에 대한 Drive 접근 권한을 요청드립니다.\n\n• 법인: ' + company + '\n• 서류: ' + doc + '\n• 요청일: ' + today + '\n\n감사합니다.');
-  window.open('mailto:' + NOTIFY_EMAIL + '?subject=' + sub + '&body=' + body);
-}
-
-function emailFundUpdate(btn, userText) {
-  var today = new Date().toLocaleDateString('ko-KR');
-  var sub = encodeURIComponent('[펀드 재무제표 업데이트 요청] ' + userText);
-  var body = encodeURIComponent('안녕하세요, 노가영님.\n\n펀드 재무제표 업데이트를 요청드립니다.\n\n• 요청 내용: ' + userText + '\n• 요청일: ' + today + '\n• 폴더: ' + FUND_LINK + '\n\n감사합니다.');
-  window.open('mailto:' + NOTIFY_EMAIL + '?subject=' + sub + '&body=' + body);
-  btn.textContent = '✅ 요청 완료';
-  btn.disabled = true;
-}
-
-// ── 전송 ──────────────────────────────────────────────
-async function send() {
-  if (!token) { showToast('먼저 Google 로그인이 필요합니다.'); return; }
-  var inp = document.getElementById('inp');
+async function chatSend() {
+  var inp = document.getElementById('chat-inp');
   var text = inp.value.trim();
   if (!text) return;
-
-  hideWelcome();
   inp.value = '';
-  inp.style.height = 'auto';
-  addUserMsg(text);
+  if (!chatOpen) toggleChat();
 
-  var parsed = parseReq(text);
+  addChatMsg('user', text);
   var numType = parseNumType(text);
   var branch  = parseBranch(text);
-  addTyping();
-  var lb = document.getElementById('lb');
-  lb.style.width = '40%';
+  var parsed  = parseReq(text);
 
-  try {
-    // 번호 조회 요청
-    if (numType) {
-      var numResult = await fetchNumber(parsed.company, numType, branch);
-      removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
-      var branchLabel = branch ? ' ' + branch : '';
-      var msg = (numResult.notFound || numResult.error)
-        ? '⚠️ ' + parsed.company + branchLabel + ' ' + numType + ' 정보가 스프레드시트에 없습니다. 노가영님께 등록 요청하세요.'
-        : numResult.noAccess
-          ? '🔒 스프레드시트 접근 권한이 없습니다.'
-          : '🔢 ' + parsed.company + branchLabel + ' 등록번호입니다.';
-      addBotMsg(msg, makeNumCard(numResult, numType, parsed.company, branch));
-      return;
+  // 번호 조회
+  if (numType) {
+    var fundName = extractFundName(text);
+    var ck = Object.keys(COMPANY_MAP).sort(function(a,b){return b.length-a.length;});
+    var mapped = null; for (var i=0;i<ck.length;i++){if(text.indexOf(ck[i])!==-1){mapped=COMPANY_MAP[ck[i]];break;}}
+    var rawName = text.replace(/사업자등록번호|법인등록번호|펀드등록번호|고유번호증?|사업자번호|법인번호|등록번호/g,'').replace(/부산|포항/g,'').trim();
+    var numCo = fundName ? (COMPANY_MAP[fundName]||fundName) : (mapped||rawName);
+    var nr = await fetchNumberChat(numCo, numType, branch);
+    if (nr.noAccess) addChatMsg('bot','🔒 접근 권한이 없습니다.');
+    else if (nr.notFound) addChatMsg('bot','⚠️ ' + numCo + ' 번호 정보가 없습니다.');
+    else {
+      var lines = [];
+      if (nr.biz)  lines.push('사업자등록번호: ' + nr.biz);
+      if (nr.corp) lines.push('법인등록번호: '   + nr.corp);
+      if (nr.fund) lines.push('펀드등록번호: '   + nr.fund);
+      addChatMsg('bot', '🔢 ' + numCo + '\n' + lines.join('\n'));
     }
-
-    // 펀드 고유번호증 탐색
-    if (parsed.docType === '고유번호증' || (text.indexOf('고유번호증') !== -1 && isFundRequest(text))) {
-      // 펀드명 추출: 불필요한 키워드 제거
-      var fundKeyword = text
-        .replace(/고유번호증|서류|찾아줘|주세요|줘|의|에서|펀드|fund/gi,'')
-        .replace(/개인투자조합|모태펀드|민간펀드/g,'')
-        .trim();
-      var fundDocResult = await searchFundDoc(fundKeyword, '고유번호증');
-      removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
-      if (fundDocResult.noAccess) {
-        addBotMsg('🔒 접근 권한이 없습니다. 관리자에게 권한을 요청하세요.');
-      } else if (fundDocResult.found) {
-        var f = fundDocResult.file;
-        var date = new Date(f.modifiedTime).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
-        var card = document.createElement('div');
-        card.className = 'doc-card';
-        card.innerHTML = '<div class="card-head"><span>📄 고유번호증 — ' + fundDocResult.fundName + '</span><span class="tag tag-green">✓ 최신본</span></div><div class="card-body"><div class="meta-row"><span class="lbl">파일명</span><span class="val" style="font-size:11px">' + f.name + '</span></div><div class="meta-row"><span class="lbl">갱신일</span><span class="val">' + date + '</span></div><div class="card-actions"><a class="btn btn-accent" href="' + f.viewLink + '" target="_blank" style="flex:none">📂 Drive에서 열기</a></div></div>';
-        addBotMsg('✅ ' + fundDocResult.fundName + ' 고유번호증을 찾았습니다.', card);
-      } else {
-        addBotMsg('⚠️ 해당 펀드 고유번호증을 찾지 못했습니다.\n파일명 규칙: 고유번호증_펀드명.pdf', makeCard({found:false, folderName:'펀드'}, {docType:'고유번호증', company:parsed.company}));
-      }
-      return;
-    }
-    if (parsed.docType === '펀드재무제표') {
-      removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
-      addBotMsg('🏦 펀드 재무제표 폴더입니다. 없는 파일은 업데이트 요청 버튼을 눌러주세요.', makeFundCard(text));
-      return;
-    }
-
-    if (parsed.docType === '재무제표') {
-      // 법인폴더 안의 재무제표 서브폴더를 찾아서 링크 안내
-      var finResult = await findFinFolder(parsed.company);
-      removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
-      if (finResult.noAccess) {
-        addBotMsg('🔒 접근 권한이 없습니다. 관리자에게 권한을 요청하세요.', makeCard({noAccess:true}, parsed));
-      } else if (finResult.found) {
-        addBotMsg('📊 ' + parsed.company + ' 재무제표 폴더입니다. 폴더에서 원하는 기간 파일을 다운로드하세요.', makeFolderCard(parsed.company, finResult.folderLink));
-      } else {
-        addBotMsg('⚠️ ' + parsed.company + ' 재무제표 폴더를 찾지 못했습니다. 노가영님께 요청하세요.', makeCard({found:false, folderName:parsed.company}, parsed));
-      }
-      return;
-    }
-
-    if (!parsed.docType) {
-      removeTyping(); lb.style.width='0%';
-      addBotMsg('어떤 정보가 필요하신가요?\n서류: 사업자등록증 / 사업자등록증명 / 법인등기부등본 / 재무제표 / 펀드 재무제표 / 인감증명서\n번호: 사업자등록번호 / 법인등록번호 / 펀드등록번호');
-      return;
-    }
-
-    if (parsed.docType === '인감증명서') {
-      removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
-      addBotMsg('🔏 인감증명서는 3층에서 직접 수령하세요.', makeCard(null, parsed));
-      return;
-    }
-
-    // 지사 분기: 사업자등록증 + 지사 키워드 있으면 company에 지사명 합산
-    var searchCompany = parsed.company;
-    if (branch && parsed.docType === '사업자등록증') {
-      searchCompany = parsed.company + ' ' + branch;
-    }
-
-    var result = await driveSearch(searchCompany, parsed.docType, parsed.period);
-    removeTyping(); lb.style.width='100%'; setTimeout(function(){ lb.style.width='0%'; },600);
-
-    var branchTxt = branch && parsed.docType === '사업자등록증' ? ' ' + branch : '';
-    var msg = result.noAccess
-      ? '🔒 이 서류에 대한 접근 권한이 없습니다. 관리자에게 권한을 요청하세요.'
-      : result.found
-        ? '✅ ' + result.folderName + branchTxt + ' ' + parsed.docType + ' 최신본을 찾았습니다.'
-        : '⚠️ Drive에서 파일을 찾지 못했습니다. 파일명 규칙을 확인하거나 노가영님께 요청하세요.';
-
-    addBotMsg(msg, makeCard(result, parsed));
-
-  } catch(e) {
-    removeTyping(); lb.style.width='0%';
-    addBotMsg('⚠️ 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    return;
   }
+
+  // 펀드 재무제표
+  if (parsed.docType === '펀드재무제표') {
+    addChatMsg('bot', '🏦 펀드 재무제표 폴더로 연결합니다.', FUND_ROOT_ID ? 'folder:'+FUND_ROOT_ID : null);
+    return;
+  }
+
+  // 서류 불명확
+  if (!parsed.docType) {
+    if (isFundRequest(text)) addChatMsg('bot','📂 펀드 관련 요청입니다.\n• 고유번호증\n• 재무제표\n• 사업자등록번호 / 고유번호\n중 무엇이 필요하신가요?');
+    else addChatMsg('bot','어떤 서류가 필요하신가요?\n사업자등록증 / 사업자등록증명 / 법인등기부등본 / 재무제표 / 인감증명서 / 주주명부 / 정관');
+    return;
+  }
+
+  // 인감증명서
+  if (parsed.docType === '인감증명서') { addChatMsg('bot','🔏 인감증명서는 3층에서 직접 수령하세요.'); return; }
+
+  // 펀드 고유번호증
+  if (parsed.docType === '고유번호증') {
+    var norm = function(s){ return (s||'').replace(/\s+/g,'').replace(/호/g,'').toLowerCase(); };
+    var fkw = (parsed.fundName || text.replace(/고유번호증/g,'').trim());
+    var result = await searchFundDocChat(fkw, '고유번호증', norm);
+    if (result.needFundName) addChatMsg('bot','🔍 펀드명을 함께 입력해 주세요.\n예) "디스커버리2 고유번호증"');
+    else if (!result.found)  addChatMsg('bot','⚠️ 해당 펀드 고유번호증을 찾지 못했습니다.\n파일명 규칙: 고유번호증_펀드명.pdf');
+    else {
+      var f = result.file;
+      addChatMsg('bot','✅ ' + result.fundName + ' 고유번호증을 찾았습니다.\n' + f.name, 'link:'+f.viewLink);
+    }
+    return;
+  }
+
+  // 일반 서류
+  var res = await driveSearch(parsed.company, parsed.docType, branch);
+  if (res.noAccess) { addChatMsg('bot','🔒 접근 권한이 없습니다. @sparklabs.co.kr 계정 확인해 주세요.'); return; }
+  if (!res.found) {
+    var rule = FILE_RULES[parsed.docType] ? '\n파일명 규칙: ' + FILE_RULES[parsed.docType] : '';
+    addChatMsg('bot','⚠️ ' + parsed.company + ' ' + parsed.docType + '을 찾지 못했습니다.' + rule, 'req:'+parsed.company+':'+parsed.docType);
+    return;
+  }
+  var rf = res.file;
+  addChatMsg('bot','✅ ' + res.folderName + ' ' + parsed.docType + ' 최신본\n' + rf.name, 'link:'+rf.viewLink);
 }
+
+function addChatMsg(role, text, extra) {
+  var history = document.getElementById('chat-history');
+  var wrap = document.createElement('div');
+  wrap.className = 'msg ' + (role==='user' ? 'user' : '');
+  var av = '<div class="msg-av ' + (role==='user'?'me':'bot') + '">' + (role==='user'?'나':'AI') + '</div>';
+  var content = '<div style="display:flex;flex-direction:column;gap:4px"><div class="bubble">' + text.replace(/\n/g,'<br>') + '</div>';
+  if (extra && extra.startsWith('link:')) {
+    content += '<a class="btn btn-sm btn-accent" href="' + extra.slice(5) + '" target="_blank" style="width:fit-content">📂 Drive에서 열기</a>';
+  } else if (extra && extra.startsWith('folder:')) {
+    content += '<a class="btn btn-sm btn-accent" href="https://drive.google.com/drive/folders/' + extra.slice(7) + '" target="_blank" style="width:fit-content">📂 폴더 열기</a>';
+  } else if (extra && extra.startsWith('req:')) {
+    var parts = extra.slice(4).split(':');
+    content += '<button class="btn btn-sm" onclick="emailRequest(\'' + parts[0] + '\',\'' + parts[1] + '\')" style="width:fit-content">📧 업로드 요청</button>';
+  }
+  content += '</div>';
+  wrap.innerHTML = av + content;
+  history.appendChild(wrap);
+  history.scrollTop = history.scrollHeight;
+}
+
+// ── Sheets 번호 조회 (챗봇용) ─────────────────────────
+async function fetchNumberChat(company, numType, branch) {
+  var range = encodeURIComponent('시트1!A:F');
+  var res = await fetch('https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID + '/values/' + range, { headers:{'Authorization':'Bearer '+token} });
+  if (res.status !== 200) return { noAccess:true };
+  var data = await res.json();
+  if (data.error) return { noAccess:true };
+  var rows = data.values || [];
+  if (!rows.length) return { notFound:true };
+  var header = rows[0].map(function(h){ return h.trim(); });
+  var ci=header.indexOf('법인명'),bi=header.indexOf('구분'),bizI=header.indexOf('사업자등록번호'),corpI=header.indexOf('법인등록번호'),fundI=header.indexOf('펀드등록번호');
+  var norm=function(s){return(s||'').replace(/\s/g,'').toLowerCase();};
+  var normCo=norm(company);
+  var matched=rows.slice(1).filter(function(row){
+    var rowCo=norm(row[ci]||''); var rowBr=(row[bi]||'').trim();
+    var coMatch=rowCo===normCo||rowCo.indexOf(normCo)!==-1;
+    if(!coMatch) return false;
+    if(branch) return rowBr.indexOf(branch)!==-1;
+    return rowBr==='본사'||rowBr==='-'||rowBr==='';
+  });
+  var exact=matched.filter(function(row){return norm(row[ci]||'')===normCo;});
+  if(exact.length) matched=exact;
+  if(!matched.length) return {notFound:true};
+  var row=matched[0];
+  return {
+    biz:  bizI>=0?(row[bizI]||''):'',
+    corp: corpI>=0?(row[corpI]||''):'',
+    fund: fundI>=0?(row[fundI]||''):'',
+  };
+}
+
+// ── 펀드 고유번호증 검색 (챗봇용) ────────────────────
+async function searchFundDocChat(fundKeyword, docKeyword, norm) {
+  var h = { 'Authorization':'Bearer '+token };
+  await initFolderIds();
+  var FUND_CAT_NAMES = ['개인투자조합','모태펀드','민간펀드','PEF펀드'];
+  var catIds = Object.keys(_folderIdMap||{}).filter(function(k){
+    return FUND_CAT_NAMES.some(function(c){ return k.indexOf(c)!==-1; });
+  }).map(function(k){ return {id:_folderIdMap[k],name:k}; });
+  if (!catIds.length) return {found:false};
+
+  var norm2=norm||function(s){return(s||'').replace(/\s+/g,'').replace(/호/g,'').toLowerCase();};
+  var normFund=norm2(fundKeyword||'');
+  if(!normFund) return {found:false,needFundName:true};
+
+  var allFiles=[];
+  for(var i=0;i<catIds.length;i++){
+    var files=await listAllFiles(catIds[i].id,h);
+    files.forEach(function(f){f._cat=catIds[i].name;});
+    allFiles=allFiles.concat(files);
+  }
+  var matched=allFiles.filter(function(f){
+    var name=norm2(f.name);
+    return name.indexOf(norm2(docKeyword))!==-1 && name.indexOf(normFund)!==-1;
+  });
+  if(!matched.length) return {found:false};
+  matched.sort(function(a,b){return new Date(b.modifiedTime)-new Date(a.modifiedTime);});
+  var f=matched[0];
+  return {found:true,fundName:f._cat||f.name,file:{name:f.name,modifiedTime:f.modifiedTime,viewLink:f.webViewLink}};
+}
+
+// ── 이메일 ───────────────────────────────────────────
+function emailRequest(company, doc) {
+  var today=new Date().toLocaleDateString('ko-KR');
+  var sub=encodeURIComponent('[서류 요청] '+company+' '+doc);
+  var body=encodeURIComponent('안녕하세요, 노가영님.\n\n다음 서류 업로드를 요청드립니다.\n\n• 법인: '+company+'\n• 서류: '+doc+'\n• 요청일: '+today+'\n\n감사합니다.');
+  window.open('mailto:'+NOTIFY_EMAIL+'?subject='+sub+'&body='+body);
+}
+
+// ── 유틸 ─────────────────────────────────────────────
+function refreshDashboard() {
+  _fileIndexMap = {}; _fileIndexTime = {};
+  if (currentTab==='corp') { renderCorpDashboard(currentCorp); loadNumbers(currentCorp); }
+  else renderFundDashboard(currentFundCat);
+  showToast('새로고침 완료');
+}
+function copyLink()  { navigator.clipboard.writeText(location.href); showToast('링크 복사됨 🔗'); }
+function shareJandi(){ navigator.clipboard.writeText(location.href); showToast('링크 복사! 잔디에 붙여넣기 하세요.'); }
+function showToast(msg){ var el=document.getElementById('toast'); el.textContent=msg; el.style.display='block'; setTimeout(function(){el.style.display='none';},2200); }
 </script>
 </body>
 </html>
