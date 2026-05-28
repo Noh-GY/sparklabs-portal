@@ -499,48 +499,80 @@ async function renderFundDashboard(cat) {
   var container = document.getElementById('fund-dashboard');
   var catDef = FUND_CATS[cat];
   container.innerHTML = '<div class="section-title">' + catDef.label + '</div>' +
-    '<div style="color:var(--text3);font-size:13px;margin-bottom:12px">펀드별 고유번호증 및 재무제표를 Drive에서 직접 확인하세요.</div>' +
-    '<div class="fund-grid" id="fund-grid"><div style="color:var(--text3);font-size:12px">폴더 로딩 중...</div></div>';
+    '<div id="fund-grid-loading" style="color:var(--text3);font-size:12px;margin-bottom:16px">폴더 로딩 중...</div>';
 
   var h = { 'Authorization': 'Bearer ' + token };
   await initFolderIds();
 
-  // 카테고리에 해당하는 루트 폴더 찾기
-  var matchedCats = Object.keys(_folderIdMap || {}).filter(function(k){
-    return catDef.folders.some(function(f){ return k.indexOf(f) !== -1; });
+  // ── 고유번호증: ROOT_ID 하위 카테고리 폴더에서 탐색 ──
+  var FUND_CAT_NAMES = ['개인투자조합','모태펀드','민간펀드','PEF펀드'];
+  var catFolders = Object.keys(_folderIdMap || {}).filter(function(k){
+    return FUND_CAT_NAMES.some(function(c){ return k.indexOf(c) !== -1; });
   });
 
-  if (!matchedCats.length) {
-    document.getElementById('fund-grid').innerHTML = '<div style="color:var(--text3);font-size:12px">해당 카테고리 폴더를 찾지 못했습니다.</div>';
-    return;
-  }
+  // 카테고리 필터
+  var targetCatFolders = catFolders.filter(function(k){
+    if (cat === 'all') return true;
+    var catMap = { pef:'PEF펀드', prv:'민간펀드', vc:'개인투자조합', gov:'모태펀드' };
+    return k.indexOf(catMap[cat] || '') !== -1;
+  });
 
-  // 각 카테고리 폴더 하위 펀드 폴더 목록
+  // 각 카테고리 하위 펀드 폴더 목록 (고유번호증용)
   var allFundFolders = [];
-  for (var i=0; i<matchedCats.length; i++) {
-    var catId = _folderIdMap[matchedCats[i]];
+  for (var i=0; i<targetCatFolders.length; i++) {
+    var catId = _folderIdMap[targetCatFolders[i]];
     var q = "'" + catId + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
     var r = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) + '&fields=files(id,name)&pageSize=100' + DRIVE_PARAMS, { headers: h });
     if (r.status !== 200) continue;
     var d = await r.json();
-    (d.files || []).forEach(function(f){ f._cat = matchedCats[i]; allFundFolders.push(f); });
+    (d.files || []).forEach(function(f){ f._cat = targetCatFolders[i]; allFundFolders.push(f); });
   }
 
+  // ── 재무제표: FUND_ROOT_ID 하위 폴더에서 탐색 ──
+  var finFolders = [];
+  var finQ = "'" + FUND_ROOT_ID + "' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false";
+  var finR = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(finQ) + '&fields=files(id,name)&pageSize=100' + DRIVE_PARAMS, { headers: h });
+  if (finR.status === 200) {
+    var finD = await finR.json();
+    finFolders = finD.files || [];
+  }
+
+  // 렌더
+  var html = '';
+
+  // 고유번호증 섹션
+  html += '<div class="section-title" style="margin-top:0">📄 고유번호증 · 법인 서류</div>';
   if (!allFundFolders.length) {
-    document.getElementById('fund-grid').innerHTML = '<div style="color:var(--text3);font-size:12px">등록된 펀드 폴더가 없습니다.</div>';
-    return;
+    html += '<div style="color:var(--text3);font-size:12px;margin-bottom:16px">등록된 펀드 폴더가 없습니다.</div>';
+  } else {
+    html += '<div class="fund-grid" style="margin-bottom:20px">';
+    allFundFolders.forEach(function(folder) {
+      var link = 'https://drive.google.com/drive/folders/' + folder.id;
+      html += '<a class="fund-link-card" href="' + link + '" target="_blank" style="text-decoration:none;color:inherit">' +
+        '<div><div class="fund-link-name">' + folder.name + '</div>' +
+        '<div class="fund-link-sub">' + folder._cat + '</div></div>' +
+        '<span style="color:var(--text3);font-size:12px">↗</span></a>';
+    });
+    html += '</div>';
   }
 
-  var grid = allFundFolders.map(function(folder) {
-    var link = 'https://drive.google.com/drive/folders/' + folder.id;
-    return '<a class="fund-link-card" href="' + link + '" target="_blank" style="text-decoration:none;color:inherit">' +
-      '<div><div class="fund-link-name">' + folder.name + '</div>' +
-      '<div class="fund-link-sub">' + folder._cat + '</div></div>' +
-      '<span style="color:var(--text3);font-size:12px">↗</span>' +
-      '</a>';
-  }).join('');
+  // 재무제표 섹션
+  html += '<div class="section-title">📊 펀드 재무제표</div>';
+  if (!finFolders.length) {
+    html += '<div style="color:var(--text3);font-size:12px;margin-bottom:16px">재무제표 폴더를 찾지 못했습니다.</div>';
+  } else {
+    html += '<div class="fund-grid">';
+    finFolders.forEach(function(folder) {
+      var link = 'https://drive.google.com/drive/folders/' + folder.id;
+      html += '<a class="fund-link-card" href="' + link + '" target="_blank" style="text-decoration:none;color:inherit">' +
+        '<div><div class="fund-link-name">' + folder.name + '</div>' +
+        '<div class="fund-link-sub">재무제표</div></div>' +
+        '<span style="color:var(--text3);font-size:12px">↗</span></a>';
+    });
+    html += '</div>';
+  }
 
-  document.getElementById('fund-grid').innerHTML = grid;
+  container.innerHTML = html;
 }
 
 // ── 번호 로드 (Sheets) ────────────────────────────────
