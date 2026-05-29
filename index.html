@@ -544,10 +544,10 @@ async function loadNumbers(corp) {
     return norm(row[ci]||'') === normCorp;
   });
 
-  // 본사/법인 우선, 없으면 첫 번째
+  // 지사 번호가 필요한 경우 (번호 배너는 본사만 표시하므로 본사/법인 우선)
   var preferred = allMatched.filter(function(row){
     var br = (row[bi]||'').trim();
-    return br === '본사' || br === '법인' || br === '-' || br === '';
+    return br === '본사' || br === '법인' || br === '합자회사' || br === '-' || br === '';
   });
   var row = (preferred.length ? preferred : allMatched)[0] || [];
 
@@ -637,14 +637,15 @@ async function driveSearch(corp, docType, branch) {
     if (!hit) return false;
     if (docType === '사업자등록증' && name.indexOf('사업자등록증명') !== -1) return false;
     if (branch) {
-      // 지사 검색: 지사명 포함 여부만 확인
-      return name.indexOf(branch) !== -1;
+      var branchHit = name.indexOf(branch) !== -1;
+      console.log('[Drive] 지사 필터:', name, '| branch:', branch, '| hit:', branchHit);
+      return branchHit;
     }
-    // 본사 검색: 법인명 포함 + 지사명 없어야 함
     var driveName = FOLDER_NAME_MAP[corp] || corp;
     if (name.indexOf(driveName) === -1 && name.indexOf(corp) === -1) return false;
     return true;
   });
+  console.log('[Drive] 최종 매칭 (' + corp + '/' + docType + (branch?'/'+branch:'') + '):', matched.map(function(f){ return f.name; }));
 
   if (!matched.length) return { found:false, folderName:folderInfo.name };
   matched.sort(function(a,b){ return new Date(b.modifiedTime) - new Date(a.modifiedTime); });
@@ -674,8 +675,8 @@ function parseNumType(text) {
   return null;
 }
 function parseBranch(text) {
-  if (text.indexOf('부산')!==-1) return '부산';
-  if (text.indexOf('포항')!==-1) return '포항';
+  if (text.indexOf('부산') !== -1) return '부산';
+  if (text.indexOf('포항') !== -1) return '포항';
   return null;
 }
 function parseReq(text) {
@@ -703,6 +704,35 @@ async function chatSend() {
   var numType = parseNumType(text);
   var branch  = parseBranch(text);
   var parsed  = parseReq(text);
+
+  // "사업자" 같이 번호+서류 둘 다 해당하는 경우 — 둘 다 표시
+  var isBizAmbiguous = /^(.*\s)?사업자(\s.*)?$/.test(text.trim()) && !numType && parsed.docType === '사업자등록증';
+  if (/사업자/.test(text) && !/(등록증|등록증명|번호|등록번호)/.test(text)) {
+    // 번호와 서류 둘 다 조회
+    var fn2 = extractFundName(text);
+    var ck2 = Object.keys(COMPANY_MAP).sort(function(a,b){return b.length-a.length;});
+    var mapped2=null; for(var i2=0;i2<ck2.length;i2++){if(text.indexOf(ck2[i2])!==-1){mapped2=COMPANY_MAP[ck2[i2]];break;}}
+    var numCo2 = fn2?(COMPANY_MAP[fn2]||fn2):(mapped2||parsed.company);
+    var numR = await fetchNumberChat(numCo2, '사업자등록번호', branch);
+    var docR = await driveSearch(parsed.company, '사업자등록증', branch);
+
+    var lines = [];
+    if (numR.biz) lines.push('사업자등록번호: ' + numR.biz);
+    var msgText = lines.length ? '🔢 ' + numCo2 + (branch?' '+branch:'') + '\n' + lines.join('\n') : '';
+
+    if (msgText && docR.found) {
+      addChatMsg('bot', msgText);
+      addChatMsg('bot', '✅ ' + docR.folderName + ' 사업자등록증 최신본\n' + docR.file.name, 'link:' + docR.file.viewLink);
+    } else if (msgText) {
+      addChatMsg('bot', msgText);
+      addChatMsg('bot', '⚠️ 사업자등록증 파일을 찾지 못했습니다.', 'req:'+parsed.company+':사업자등록증');
+    } else if (docR.found) {
+      addChatMsg('bot', '✅ ' + docR.folderName + ' 사업자등록증 최신본\n' + docR.file.name, 'link:' + docR.file.viewLink);
+    } else {
+      addChatMsg('bot', '⚠️ ' + parsed.company + ' 사업자 정보를 찾지 못했습니다.');
+    }
+    return;
+  }
 
   // 번호 조회
   if (numType) {
@@ -803,11 +833,22 @@ async function fetchNumberChat(company, numType, branch) {
   var allMatched=rows.slice(1).filter(function(row){
     return norm(row[ci]||'')===normCo;
   });
-  var preferred=allMatched.filter(function(row){
-    var br=(row[bi]||'').trim();
-    return br==='본사'||br==='법인'||br==='-'||br==='';
-  });
-  var matched=preferred.length?preferred:allMatched;
+
+  var matched;
+  if (branch) {
+    // 지사 요청: 구분 컬럼에 branch 키워드 포함된 행
+    matched = allMatched.filter(function(row){
+      return (row[bi]||'').indexOf(branch) !== -1;
+    });
+    if (!matched.length) matched = allMatched; // fallback
+  } else {
+    // 본사 요청: 본사/법인 우선
+    var preferred=allMatched.filter(function(row){
+      var br=(row[bi]||'').trim();
+      return br==='본사'||br==='법인'||br==='합자회사'||br==='-'||br==='';
+    });
+    matched=preferred.length?preferred:allMatched;
+  }
   if(!matched.length) return {notFound:true};
   var row=matched[0];
   return {
