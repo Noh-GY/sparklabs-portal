@@ -583,9 +583,18 @@ async function initFolderIds() {
 function getFolderId(corp) {
   if (!_folderIdMap) return null;
   var driveName = FOLDER_NAME_MAP[corp] || corp;
-  var key = Object.keys(_folderIdMap).find(function(k){ return k === driveName; })
-         || Object.keys(_folderIdMap).find(function(k){ return k.indexOf(driveName) !== -1; })
-         || Object.keys(_folderIdMap).find(function(k){ return driveName.indexOf(k) !== -1; });
+  var keys = Object.keys(_folderIdMap);
+
+  // 1. exact match
+  var key = keys.find(function(k){ return k === driveName; });
+  // 2. driveName이 k의 시작 부분과 일치 (스파크랩 → 스파크랩만, 스파크랩파트너스 아님)
+  if (!key) key = keys.find(function(k){ return k === driveName || (k.indexOf(driveName) === 0 && (k.length === driveName.length || /[^가-힣a-zA-Z0-9]/.test(k[driveName.length]))); });
+  // 3. driveName이 k를 포함
+  if (!key) key = keys.find(function(k){ return k.indexOf(driveName) !== -1; });
+  // 4. k가 driveName을 포함
+  if (!key) key = keys.find(function(k){ return driveName.indexOf(k) !== -1; });
+
+  console.log('[Drive] getFolderId:', corp, '→', key || '없음');
   return key ? { id:_folderIdMap[key], name:key } : null;
 }
 
