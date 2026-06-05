@@ -653,15 +653,15 @@ async function driveSearch(corp, docType, branch) {
     if (!hit) return false;
     if (docType === '사업자등록증' && name.indexOf('사업자등록증명') !== -1) return false;
     if (branch) {
-      var branchHit = name.indexOf(branch) !== -1;
-      console.log('[Drive] 지사 필터:', name, '| branch:', branch, '| hit:', branchHit);
-      return branchHit;
+      // 지사 검색: 지사 키워드 포함
+      return name.indexOf(branch) !== -1;
     }
+    // 본사 검색: 지사 키워드 제외
+    if (name.indexOf('부산') !== -1 || name.indexOf('포항') !== -1) return false;
     var driveName = FOLDER_NAME_MAP[corp] || corp;
     if (name.indexOf(driveName) === -1 && name.indexOf(corp) === -1) return false;
     return true;
   });
-  console.log('[Drive] 최종 매칭 (' + corp + '/' + docType + (branch?'/'+branch:'') + '):', matched.map(function(f){ return f.name; }));
 
   if (!matched.length) return { found:false, folderName:folderInfo.name };
   matched.sort(function(a,b){ return new Date(b.modifiedTime) - new Date(a.modifiedTime); });
