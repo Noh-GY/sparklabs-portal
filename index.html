@@ -709,107 +709,111 @@ function parseReq(text) {
   return { company:company, docType:docType, fundName:fundName };
 }
 
+// ── 챗봇 context ─────────────────────────────────────
+var _lastContext = null; // { company, fundName }
+
 async function chatSend() {
   var inp = document.getElementById('chat-inp');
   var text = inp.value.trim();
   if (!text) return;
   inp.value = '';
   if (!chatOpen) toggleChat();
-
   addChatMsg('user', text);
-  var numType = parseNumType(text);
-  var branch  = parseBranch(text);
-  var parsed  = parseReq(text);
 
-  // "사업자" 같이 번호+서류 둘 다 해당하는 경우 — 둘 다 표시
-  var isBizAmbiguous = /^(.*\s)?사업자(\s.*)?$/.test(text.trim()) && !numType && parsed.docType === '사업자등록증';
-  if (/사업자/.test(text) && !/(등록증|등록증명|번호|등록번호)/.test(text)) {
-    // 번호와 서류 둘 다 조회
-    var fn2 = extractFundName(text);
-    var ck2 = Object.keys(COMPANY_MAP).sort(function(a,b){return b.length-a.length;});
-    var mapped2=null; for(var i2=0;i2<ck2.length;i2++){if(text.indexOf(ck2[i2])!==-1){mapped2=COMPANY_MAP[ck2[i2]];break;}}
-    var numCo2 = fn2?(COMPANY_MAP[fn2]||fn2):(mapped2||parsed.company);
-    var numR = await fetchNumberChat(numCo2, '사업자등록번호', branch);
-    var docR = await driveSearch(parsed.company, '사업자등록증', branch);
-
-    var lines = [];
-    if (numR.biz) lines.push('사업자등록번호: ' + numR.biz);
-    var msgText = lines.length ? '🔢 ' + numCo2 + (branch?' '+branch:'') + '\n' + lines.join('\n') : '';
-
-    if (msgText && docR.found) {
-      addChatMsg('bot', msgText);
-      addChatMsg('bot', '✅ ' + docR.folderName + ' 사업자등록증 최신본\n' + docR.file.name, 'link:' + docR.file.viewLink);
-    } else if (msgText) {
-      addChatMsg('bot', msgText);
-      addChatMsg('bot', '⚠️ 사업자등록증 파일을 찾지 못했습니다.', 'req:'+parsed.company+':사업자등록증');
-    } else if (docR.found) {
-      addChatMsg('bot', '✅ ' + docR.folderName + ' 사업자등록증 최신본\n' + docR.file.name, 'link:' + docR.file.viewLink);
-    } else {
-      addChatMsg('bot', '⚠️ ' + parsed.company + ' 사업자 정보를 찾지 못했습니다.');
+  // 꼬리질문 context 적용: 이전 대화에서 법인/펀드명이 있고 현재 입력에 없으면 합쳐서 처리
+  var fullText = text;
+  if (_lastContext) {
+    var hasCompany = Object.keys(COMPANY_MAP).some(function(k){ return text.indexOf(k) !== -1; });
+    var hasFund = extractFundName(text);
+    if (!hasCompany && !hasFund) {
+      fullText = _lastContext.name + ' ' + text;
     }
+  }
+
+  var numType = parseNumType(fullText);
+  var branch  = parseBranch(fullText);
+  var parsed  = parseReq(fullText);
+
+  // "사업자" 단독 — 번호+서류 둘 다
+  if (/사업자/.test(fullText) && !/(등록증|등록증명|번호|등록번호)/.test(fullText)) {
+    var fn2=extractFundName(fullText); var ck2=Object.keys(COMPANY_MAP).sort(function(a,b){return b.length-a.length;}); var mapped2=null;
+    for(var i2=0;i2<ck2.length;i2++){if(fullText.indexOf(ck2[i2])!==-1){mapped2=COMPANY_MAP[ck2[i2]];break;}}
+    var numCo2=fn2?(COMPANY_MAP[fn2]||fn2):(mapped2||parsed.company);
+    _lastContext={name:numCo2};
+    var numR=await fetchNumberChat(numCo2,'사업자등록번호',branch);
+    var docR=await driveSearch(parsed.company,'사업자등록증',branch);
+    if(numR.biz) addChatMsg('bot','🔢 '+numCo2+(branch?' '+branch:'')+'\n사업자등록번호: '+numR.biz);
+    if(docR.found) addChatMsg('bot','✅ '+docR.folderName+' 사업자등록증\n'+docR.file.name,'link:'+docR.file.viewLink);
+    if(!numR.biz && !docR.found) addChatMsg('bot','⚠️ '+numCo2+' 사업자 정보를 찾지 못했습니다.\n\n다시 시도: "'+numCo2+' 사업자등록번호"');
     return;
   }
 
   // 번호 조회
   if (numType) {
-    var fundName = extractFundName(text);
-    var ck = Object.keys(COMPANY_MAP).sort(function(a,b){return b.length-a.length;});
-    var mapped = null; for (var i=0;i<ck.length;i++){if(text.indexOf(ck[i])!==-1){mapped=COMPANY_MAP[ck[i]];break;}}
-    var rawName = text.replace(/사업자등록번호|법인등록번호|펀드등록번호|고유번호증?|사업자번호|법인번호|등록번호/g,'').replace(/부산|포항/g,'').trim();
-    var numCo = fundName ? (COMPANY_MAP[fundName]||fundName) : (mapped||rawName);
-    var nr = await fetchNumberChat(numCo, numType, branch);
-    if (nr.noAccess) addChatMsg('bot','🔒 접근 권한이 없습니다.');
-    else if (nr.notFound) addChatMsg('bot','⚠️ ' + numCo + ' 번호 정보가 없습니다.');
-    else {
-      var lines = [];
-      if (nr.biz)  lines.push('사업자등록번호: ' + nr.biz);
-      if (nr.corp) lines.push('법인등록번호: '   + nr.corp);
-      if (nr.fund) lines.push('펀드등록번호: '   + nr.fund);
-      addChatMsg('bot', '🔢 ' + numCo + '\n' + lines.join('\n'));
-    }
+    var fn3=extractFundName(fullText); var ck3=Object.keys(COMPANY_MAP).sort(function(a,b){return b.length-a.length;}); var mapped3=null;
+    for(var i3=0;i3<ck3.length;i3++){if(fullText.indexOf(ck3[i3])!==-1){mapped3=COMPANY_MAP[ck3[i3]];break;}}
+    var raw3=fullText.replace(/사업자등록번호|법인등록번호|펀드등록번호|고유번호증?|사업자번호|법인번호|등록번호/g,'').replace(/부산|포항/g,'').trim();
+    var numCo3=fn3?(COMPANY_MAP[fn3]||fn3):(mapped3||raw3);
+    _lastContext={name:numCo3};
+    var nr=await fetchNumberChat(numCo3,numType,branch);
+    if(nr.noAccess){addChatMsg('bot','🔒 접근 권한이 없습니다.');return;}
+    if(nr.notFound){addChatMsg('bot','⚠️ '+numCo3+' 번호 정보가 스프레드시트에 없습니다.\n\n다시 시도: "'+numCo3+' 사업자등록번호"');return;}
+    var lines3=[];
+    if(nr.biz)  lines3.push('사업자등록번호: '+nr.biz);
+    if(nr.corp) lines3.push('법인등록번호: '+nr.corp);
+    if(nr.fund) lines3.push('펀드등록번호: '+nr.fund);
+    addChatMsg('bot','🔢 '+numCo3+'\n'+lines3.join('\n'));
     return;
   }
 
   // 펀드 재무제표
   if (parsed.docType === '펀드재무제표') {
-    addChatMsg('bot', '🏦 펀드 재무제표 폴더로 연결합니다.', FUND_ROOT_ID ? 'folder:'+FUND_ROOT_ID : null);
+    _lastContext={name:parsed.company};
+    addChatMsg('bot','🏦 펀드 재무제표 폴더로 연결합니다.','folder:'+FUND_ROOT_ID);
     return;
   }
 
   // 서류 불명확
   if (!parsed.docType) {
-    if (isFundRequest(text)) addChatMsg('bot','📂 펀드 관련 요청입니다.\n• 고유번호증\n• 재무제표\n• 사업자등록번호 / 고유번호\n중 무엇이 필요하신가요?');
-    else addChatMsg('bot','어떤 서류가 필요하신가요?\n사업자등록증 / 사업자등록증명 / 법인등기부등본 / 재무제표 / 인감증명서 / 주주명부 / 정관');
-    return;
-  }
-
-  // 인감증명서
-  if (parsed.docType === '인감증명서') { addChatMsg('bot','🔏 인감증명서는 3층에서 직접 수령하세요.'); return; }
-
-  // 펀드 고유번호증
-  if (parsed.docType === '고유번호증') {
-    var norm = function(s){ return (s||'').replace(/\s+/g,'').replace(/호/g,'').toLowerCase(); };
-    var fkw = (parsed.fundName || text.replace(/고유번호증/g,'').trim());
-    var result = await searchFundDocChat(fkw, '고유번호증', norm);
-    if (result.needFundName) addChatMsg('bot','🔍 펀드명을 함께 입력해 주세요.\n예) "디스커버리2 고유번호증"');
-    else if (!result.found)  addChatMsg('bot','⚠️ 해당 펀드 고유번호증을 찾지 못했습니다.\n파일명 규칙: 고유번호증_펀드명.pdf');
-    else {
-      var f = result.file;
-      addChatMsg('bot','✅ ' + result.fundName + ' 고유번호증을 찾았습니다.\n' + f.name, 'link:'+f.viewLink);
+    var coName=parsed.fundName||parsed.company;
+    _lastContext={name:coName};
+    if(isFundRequest(fullText)){
+      addChatMsg('bot','📂 '+coName+' 관련 요청입니다. 무엇이 필요하신가요?\n• 고유번호증\n• 재무제표\n• 사업자등록번호 / 고유번호\n\n예) "'+coName+' 사업자등록번호"');
+    } else {
+      addChatMsg('bot','어떤 서류가 필요하신가요?\n사업자등록증 / 사업자등록증명 / 법인등기부등본 / 재무제표 / 인감증명서 / 주주명부 / 정관\n\n예) "'+parsed.company+' 법인등기부등본"');
     }
     return;
   }
 
-  // 일반 서류
-  var res = await driveSearch(parsed.company, parsed.docType, branch);
-  if (res.noAccess) { addChatMsg('bot','🔒 접근 권한이 없습니다. @sparklabs.co.kr 계정 확인해 주세요.'); return; }
-  if (!res.found) {
-    var rule = FILE_RULES[parsed.docType] ? '\n파일명 규칙: ' + FILE_RULES[parsed.docType] : '';
-    addChatMsg('bot','⚠️ ' + parsed.company + ' ' + parsed.docType + '을 찾지 못했습니다.' + rule, 'req:'+parsed.company+':'+parsed.docType);
+  // 인감증명서
+  if (parsed.docType === '인감증명서') {
+    _lastContext={name:parsed.company};
+    addChatMsg('bot','🔏 인감증명서는 3층에서 직접 수령하세요.');
     return;
   }
-  var rf = res.file;
-  addChatMsg('bot','✅ ' + res.folderName + ' ' + parsed.docType + ' 최신본\n' + rf.name, 'link:'+rf.viewLink);
+
+  // 펀드 고유번호증
+  if (parsed.docType === '고유번호증') {
+    var norm4=function(s){return(s||'').replace(/\s+/g,'').replace(/호/g,'').toLowerCase();};
+    var fkw=parsed.fundName||fullText.replace(/고유번호증/g,'').trim();
+    _lastContext={name:fkw};
+    var fundRes=await searchFundDocChat(fkw,'고유번호증',norm4);
+    if(fundRes.needFundName) addChatMsg('bot','🔍 펀드명을 함께 입력해 주세요.\n예) "디스커버리2 고유번호증"');
+    else if(!fundRes.found)  addChatMsg('bot','⚠️ '+fkw+' 고유번호증을 찾지 못했습니다.\n파일명 규칙: 고유번호증_펀드명.pdf\n\n다시 시도: "'+fkw+' 고유번호증"');
+    else addChatMsg('bot','✅ '+fundRes.fundName+' 고유번호증\n'+fundRes.file.name,'link:'+fundRes.file.viewLink);
+    return;
+  }
+
+  // 일반 서류
+  _lastContext={name:parsed.company};
+  var res=await driveSearch(parsed.company,parsed.docType,branch);
+  if(res.noAccess){addChatMsg('bot','🔒 접근 권한이 없습니다. @sparklabs.co.kr 계정을 확인해 주세요.');return;}
+  if(!res.found){
+    var rule=FILE_RULES[parsed.docType]?'\n파일명 규칙: '+FILE_RULES[parsed.docType]:'';
+    addChatMsg('bot','⚠️ '+parsed.company+' '+parsed.docType+'을 찾지 못했습니다.'+rule+'\n\n다시 시도: "'+parsed.company+' '+parsed.docType+'"','req:'+parsed.company+':'+parsed.docType);
+    return;
+  }
+  addChatMsg('bot','✅ '+res.folderName+' '+parsed.docType+' 최신본\n'+res.file.name,'link:'+res.file.viewLink);
 }
 
 function addChatMsg(role, text, extra) {
