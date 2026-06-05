@@ -604,19 +604,26 @@ async function listAllFiles(folderId, h) {
   if (_fileIndexMap[folderId] && (now - (_fileIndexTime[folderId]||0)) < INDEX_TTL) return _fileIndexMap[folderId];
   var all = [];
   async function walk(id) {
-    var q = "'" + id + "' in parents and trashed=false";
-    var r = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) + '&fields=files(id,name,mimeType,modifiedTime,webViewLink)&pageSize=1000' + DRIVE_PARAMS, { headers: h });
-    if (r.status !== 200) return;
-    var d = await r.json();
-    for (var i=0; i<(d.files||[]).length; i++) {
-      var f = d.files[i];
-      if (f.mimeType === 'application/vnd.google-apps.folder') await walk(f.id);
-      else all.push(f);
-    }
+    var pageToken = null;
+    do {
+      var url = 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent("'" + id + "' in parents and trashed=false") +
+        '&fields=nextPageToken,files(id,name,mimeType,modifiedTime,webViewLink)&pageSize=1000' + DRIVE_PARAMS;
+      if (pageToken) url += '&pageToken=' + encodeURIComponent(pageToken);
+      var r = await fetch(url, { headers: h });
+      if (r.status !== 200) break;
+      var d = await r.json();
+      for (var i=0; i<(d.files||[]).length; i++) {
+        var f = d.files[i];
+        if (f.mimeType === 'application/vnd.google-apps.folder') await walk(f.id);
+        else all.push(f);
+      }
+      pageToken = d.nextPageToken || null;
+    } while (pageToken);
   }
   await walk(folderId);
   _fileIndexMap[folderId] = all;
   _fileIndexTime[folderId] = Date.now();
+  console.log('[Drive] 인덱싱 완료:', folderId, all.length + '개');
   return all;
 }
 
